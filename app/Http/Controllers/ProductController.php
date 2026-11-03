@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -9,12 +7,32 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    // Admin Dashboard မျက်နှာပြင်အတွက် ဒေတာများ ပို့ပေးရန်
+    public function dashboard()
+    {
+        $totalProducts = Product::count(); 
+        $totalStock = Product::sum('stock'); 
+        
+        $categories = Category::withCount('products')->get();
+        $categoryNames = $categories->pluck('name');
+        $categoryCounts = $categories->pluck('products_count');
+
+        return view('admin.dashboard', compact('totalProducts', 'totalStock', 'categoryNames', 'categoryCounts'));
+    }
+
+    // Categories Card View အတွက် ဒေတာများ ယူဆောင်ရန်
+        public function categoryIndex()
+    {
+        $categories = Category::withCount('products')->get();
+
+        return view('admin.categories.index', compact('categories'));
+    }
     // Read: ပန်းစာရင်းကြည့်ရန်
     public function index()
     {
-        $products = Product::with('category')
-            ->latest()
-            ->paginate(8);
+        $products = Product::with('category')->latest()->get();
+            
+            
 
         return view('products.index', compact('products'));
     }
@@ -108,4 +126,104 @@ class ProductController extends Controller
             ->route('products.index')
             ->with('success', 'ပန်းပစ္စည်းကို ဖျက်ပြီးပါပြီ။');
     }
+   public function byCategory($id)
+{
+    $category = Category::findOrFail($id);
+    $products = Product::with('category')->where('category_id', $id)->latest()->get();
+
+    // Table ဖိုင် (`products.index`) အစား Card ပုံစံ View ဖိုင်သို့ ပို့ပေးရန်
+    return view('admin.categories.products', compact('products', 'category'));
+}
+public function shopIndex(Request $request)
+    {
+        $categories = Category::withCount('products')->get();
+        $selectedCategory = null;
+
+        $query = Product::with('category');
+
+        // Price Filter စစ်ဆေးခြင်း
+        if ($request->has('prices')) {
+            $query->where(function($q) use ($request) {
+                foreach ($request->prices as $priceRange) {
+                    if ($priceRange == 'under_20k') {
+                        $q->orWhere('price', '<', 20000);
+                    }
+                    if ($priceRange == '20k_30k') {
+                        $q->orWhereBetween('price', [20000, 30000]);
+                    }
+                    if ($priceRange == '30k_40k') {
+                        $q->orWhereBetween('price', [30000, 40000]);
+                    }
+                    if ($priceRange == 'over_40k') {
+                        $q->orWhere('price', '>', 40000);
+                    }
+                }
+            });
+        }
+
+        // Availability Filter စစ်ဆေးခြင်း (stock > 0 ဆိုရင် In Stock, 0 ဆိုရင် Out of Stock ဟု ယူဆပါသည်)
+        if ($request->has('availability')) {
+            $query->where(function($q) use ($request) {
+                foreach ($request->availability as $status) {
+                    if ($status == 'in_stock') {
+                        $q->orWhere('stock', '>', 0);
+                    }
+                    if ($status == 'out_stock') {
+                        $q->orWhere('stock', '<=', 0);
+                    }
+                }
+            });
+        }
+
+        $products = $query->latest()->get();
+
+        return view('shop.index', compact('products', 'categories', 'selectedCategory'));
+    }
+
+    public function shopByCategory(Request $request, $id)
+    {
+        $categories = Category::withCount('products')->get();
+        $selectedCategory = Category::findOrFail($id);
+        
+        $query = Product::with('category')->where('category_id', $id);
+
+        // Price Filter စစ်ဆေးခြင်း
+        if ($request->has('prices')) {
+            $query->where(function($q) use ($request) {
+                foreach ($request->prices as $priceRange) {
+                    if ($priceRange == 'under_20k') {
+                        $q->orWhere('price', '<', 20000);
+                    }
+                    if ($priceRange == '20k_30k') {
+                        $q->orWhereBetween('price', [20000, 30000]);
+                    }
+                    if ($priceRange == '30k_40k') {
+                        $q->orWhereBetween('price', [30000, 40000]);
+                    }
+                    if ($priceRange == 'over_40k') {
+                        $q->orWhere('price', '>', 40000);
+                    }
+                }
+            });
+        }
+
+        // Availability Filter စစ်ဆေးခြင်း
+        if ($request->has('availability')) {
+            $query->where(function($q) use ($request) {
+                foreach ($request->availability as $status) {
+                    if ($status == 'in_stock') {
+                        $q->orWhere('stock', '>', 0);
+                    }
+                    if ($status == 'out_stock') {
+                        $q->orWhere('stock', '<=', 0);
+                    }
+                }
+            });
+        }
+
+        $products = $query->latest()->get();
+
+        return view('shop.index', compact('products', 'categories', 'selectedCategory'));
+    }
+
 }

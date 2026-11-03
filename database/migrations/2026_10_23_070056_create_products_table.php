@@ -16,7 +16,7 @@ public function up(): void
 
         $table->foreignId('category_id')
               ->constrained()
-              ->restrictOnDelete();
+              ->onDelete('cascade');
 
         $table->string('name');
         $table->text('description')->nullable();

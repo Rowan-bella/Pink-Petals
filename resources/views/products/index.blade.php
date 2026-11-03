@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Products | Pink Petals Admin</title>
+    <title>
+        @isset($category)
+            {{ $category->name }} | Pink Petals Admin
+        @else
+            Products | Pink Petals Admin
+        @endisset
+    </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -58,25 +64,12 @@
             background: var(--pink-primary);
             color: white;
         }
-        .sidebar-footer {
-            padding: 15px;
-            border-top: 1px solid #f8d7e0;
-        }
 
         /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 25px;
         }
-        .top-navbar {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-        
-        /* Card & Table */
         .content-card {
             background: white;
             border-radius: 16px;
@@ -111,9 +104,6 @@
             font-size: 0.85rem;
             font-weight: 500;
         }
-        .badge-status-in { background: #e6fcf5; color: #0ca678; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; }
-        .badge-status-low { background: #fff9db; color: #f59f00; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; }
-        
         .action-btn {
             width: 32px; height: 32px;
             display: inline-flex; align-items: center; justify-content: center;
@@ -133,35 +123,18 @@
             🌸 <span>Pink Petals</span>
         </a>
         <ul class="sidebar-menu">
-            <li><a href="#"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-            <li><a href="#" class="active"><i class="fa-solid fa-box"></i> Products</a></li>
-            <li><a href="#"><i class="fa-solid fa-list"></i> Categories</a></li>
+            <li><a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li><a href="{{ route('products.index') }}" class="active"><i class="fa-solid fa-box"></i> Products</a></li>
+            <li><a href="{{ route('admin.categories') }}"><i class="fa-solid fa-list"></i> Categories</a></li>
             <li><a href="#"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
-            <li><a href="#"><i class="fa-solid fa-users"></i> Users</a></li>
-            <li><a href="#"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            <li><a href="{{ route('admin.users.index')}}"><i class="fa-solid fa-users"></i> Users</a></li>
+            <li><a href="{{ route('home')}}" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a><li>
+
         </ul>
-        <div class="sidebar-footer">
-            <a href="#" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-        </div>
     </div>
 
     <!-- Main Content Area -->
     <div class="main-content">
-        <!-- Top Navbar -->
-        <div class="top-navbar">
-            <button class="btn btn-light position-relative rounded-circle"><i class="fa-regular fa-bell"></i></button>
-            <div class="dropdown">
-                <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown">
-                    <i class="fa-solid fa-circle-user fs-5"></i> Admin
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li><a class="dropdown-item text-danger" href="#">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Page Header & Actions -->
         <div class="content-card">
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -172,15 +145,34 @@
 
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h3 class="fw-bold mb-1" style="color: var(--pink-primary);">Products</h3>
-                    <p class="text-muted mb-0">Manage your flower products</p>
+                    <h3 class="fw-bold mb-1" style="color: var(--pink-primary);">
+                        @isset($category)
+                            {{ $category->name }} Products
+                        @else
+                            All Products
+                        @endisset
+                    </h3>
+                    <p class="text-muted mb-0">
+                        @isset($category)
+                            Showing products under "{{ $category->name }}" category
+                        @else
+                            Manage your flower products
+                        @endisset
+                    </p>
                 </div>
-                <a href="{{ route('products.create') }}" class="btn btn-pink px-3 py-2">
-                    <i class="fa-solid fa-plus me-1"></i> Add New Product
-                </a>
+                <div class="d-flex gap-2">
+                    @isset($category)
+                        <a href="{{ route('admin.categories') }}" class="btn btn-outline-secondary px-3 py-2">
+                            <i class="fa-solid fa-arrow-left me-1"></i> Back to Categories
+                        </a>
+                    @endisset
+                    <a href="{{ route('products.create') }}" class="btn btn-pink px-3 py-2">
+                        <i class="fa-solid fa-plus me-1"></i> Add New Product
+                    </a>
+                </div>
             </div>
 
-            <!-- Products Table -->
+            <!-- Products Table (Name, Category, Description, Price ပါဝင်ပြီး Rating မပါပါ) -->
             <div class="table-responsive">
                 <table class="table table-custom align-middle">
                     <thead>
@@ -189,9 +181,8 @@
                             <th>Image</th>
                             <th>Name</th>
                             <th>Category</th>
+                            <th>Description</th>
                             <th>Price (MMK)</th>
-                            <th>Stock</th>
-                            <th>Status</th>
                             <th class="text-center">Actions</th>
                         </tr>
                     </thead>
@@ -208,21 +199,15 @@
                                 </td>
                                 <td>
                                     <div class="fw-bold">{{ $product->name }}</div>
-                                    <small class="text-muted">{{ Str::limit($product->description, 35) }}</small>
                                 </td>
                                 <td>
                                     <span class="badge-category">{{ $product->category->name ?? 'Uncategorized' }}</span>
                                 </td>
-                                <td class="fw-semibold">{{ number_format($product->price) }}</td>
-                                <td>{{ $product->stock }}</td>
                                 <td>
-                                    @if($product->stock > 0)
-                                        <span class="badge-status-in">In Stock</span>
-                                    @else
-                                        <span class="badge-status-low">Low Stock</span>
-                                    @endif
+                                    <small class="text-muted">{{ Str::limit($product->description, 50) ?: 'No description provided' }}</small>
                                 </td>
-                                <td class="text-center">
+                                <td class="fw-semibold text-nowrap">{{ number_format($product->price) }} MMK</td>
+                                <td class="text-center text-nowrap">
                                     <!-- View Button -->
                                     <a href="{{ route('products.show', $product->id) }}" class="action-btn btn-view" title="View">
                                         <i class="fa-regular fa-eye"></i>
@@ -243,21 +228,14 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-4 text-muted">ပစ္စည်းအချက်အလက် တစ်စုံတစ်ရာ မရှိသေးပါ။</td>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-box-open fa-2x mb-2 text-black-50"></i>
+                                    <p class="mb-0">ဤ Category ထဲတွင် ပစ္စည်းအချက်အလက် တစ်စုံတစ်ရာ မရှိသေးပါ။</p>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <span class="text-muted small">
-                    Showing {{ $products->firstItem() ?? 0 }} to {{ $products->lastItem() ?? 0 }} of {{ $products->total() }} products
-                </span>
-                <div>
-                    {{ $products->links() }}
-                </div>
             </div>
         </div>
     </div>

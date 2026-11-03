@@ -105,33 +105,19 @@
             🌸 <span>Pink Petals</span>
         </a>
         <ul class="sidebar-menu">
-            <li><a href="#"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-            <li><a href="#" class="active"><i class="fa-solid fa-box"></i> Products</a></li>
-            <li><a href="#"><i class="fa-solid fa-list"></i> Categories</a></li>
+            <li><a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li><a href="{{ route('products.index') }}" class="active"><i class="fa-solid fa-box"></i> Products</a></li>
+            <li><a href="{{ route('admin.categories') }}"><i class="fa-solid fa-list"></i> Categories</a></li>
             <li><a href="#"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
-            <li><a href="#"><i class="fa-solid fa-users"></i> Users</a></li>
-            <li><a href="#"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            <li><a href="{{ route('admin.users.index')}}"><i class="fa-solid fa-users"></i> Users</a></li>
+            <li><a href="{{ route('home')}}" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a><li>
         </ul>
-        <div class="sidebar-footer">
-            <a href="#" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-        </div>
+        
     </div>
 
     <!-- Main Content Area -->
     <div class="main-content">
-        <!-- Top Navbar -->
-        <div class="top-navbar">
-            <button class="btn btn-light position-relative rounded-circle"><i class="fa-regular fa-bell"></i></button>
-            <div class="dropdown">
-                <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown">
-                    <i class="fa-solid fa-circle-user fs-5"></i> Admin
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li><a class="dropdown-item text-danger" href="#">Logout</a></li>
-                </ul>
-            </div>
-        </div>
+        
 
         <!-- Form Container -->
         <div class="form-card mx-auto">
@@ -159,12 +145,13 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Category *</label>
                     <select name="category_id" class="form-select" required>
-                        <option value="">Choose category</option>
-                        <option value="1" @selected(old('category_id') == 1)>Rose Bouquets</option>
-                        <option value="2" @selected(old('category_id') == 2)>Mixed Flowers</option>
-                        <option value="3" @selected(old('category_id') == 3)>Tulips</option>
-                        <option value="4" @selected(old('category_id') == 4)>Flower Gifts</option>
-                    </select>
+                    <option value="">Choose category</option>
+                    @foreach(\App\Models\Category::all() as $category)
+                    <option value="{{ $category->id }}" @selected(old('category_id', $product->category_id ?? '') == $category->id)>
+                     {{ $category->name }}
+                     </option>
+                  @endforeach
+                </select>
                 </div>
 
                 <div class="mb-3">

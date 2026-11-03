@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard | Pink Petals Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --pink-primary: #c75d83;
+            --pink-hover: #a9446a;
+            --pink-bg: #fff5f7;
+            --sidebar-width: 250px;
+        }
+        body { background: var(--pink-bg); color: #563b47; font-family: system-ui, -apple-system, sans-serif; }
+        
+        /* Sidebar Layout */
+        .sidebar {
+            width: var(--sidebar-width);
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            background: white;
+            border-right: 1px solid #f8d7e0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            padding: 24px 20px;
+            font-weight: bold;
+            color: var(--pink-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 15px;
+            margin: 0;
+            flex-grow: 1;
+        }
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: #7a5c68;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background: var(--pink-primary);
+            color: white;
+        }
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid #f8d7e0;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 25px;
+        }
+        .top-navbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        /* Cards & Graphs */
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px #d88da512;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px #d88da512;
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+    <a href="#" class="sidebar-brand">
+        🌸 <span>Pink Petals</span>
+    </a>
+    <ul class="sidebar-menu">
+        <!-- Dashboard - Admin နဲ့ Manager သာ မြင်ရမည် -->
+        @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li><a href="{{ route('admin.dashboard') }}" class="active"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+        @endif
+
+        <!-- Products - Admin နဲ့ Manager သာ မြင်ရမည် (Staff မမြင်ရပါ) -->
+        @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li><a href="{{ route('products.index') }}"><i class="fa-solid fa-box"></i> Products</a></li>
+        @endif
+
+        <!-- Categories - Admin, Manager, Staff အားလုံး မြင်ရမည် -->
+        <li><a href="{{ route('admin.categories') }}"><i class="fa-solid fa-list"></i> Categories</a></li>
+
+        <!-- Orders (လိုအပ်ပါက Admin/Manager သာပြရန် ထည့်နိုင်သည်) -->
+        @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li><a href="#"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
+        @endif
+
+        <!-- Users - Admin သာလျှင် မြင်ရမည် -->
+        @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'manager'))
+            <li><a href="{{ route('admin.users.index')}}"><i class="fa-solid fa-users"></i> Users</a></li>
+        @endif
+
+        <li><a href="{{ route('home')}}" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+    </ul>
+</div><!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        
+
+        <!-- Top Stat Boxes (Database မှ ဒေတာများဖြင့် ပြသခြင်း) -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h6 class="text-muted">Total Products</h6>
+                    <h3 class="fw-bold" style="color: var(--pink-primary);">{{ $totalProducts }} Flowers</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h6 class="text-muted">Total Stock Quantity</h6>
+                    <h3 class="fw-bold" style="color: var(--pink-primary);">{{ $totalStock }} Items</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h6 class="text-muted">Total Revenue</h6>
+                    <h3 class="fw-bold" style="color: var(--pink-primary);">0 MMK</h3>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Graphs Section -->
+        <div class="row">
+            <!-- Line Chart (Sales Overview) -->
+            <div class="col-md-8">
+                <div class="chart-card">
+                    <h5 class="fw-bold mb-3" style="color: var(--pink-primary);">📈 Sales Overview</h5>
+                    <canvas id="salesChart" height="130"></canvas>
+                </div>
+            </div>
+
+            <!-- Doughnut Chart (Category Share) -->
+            <div class="col-md-4">
+                <div class="chart-card">
+                    <h5 class="fw-bold mb-3" style="color: var(--pink-primary);">🌸 Categories</h5>
+                    <canvas id="categoryChart" height="230"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js Initialization Script (Dynamic Data from Controller) -->
+    <script>
+        // Sales Chart (Line)
+        const ctxSales = document.getElementById('salesChart').getContext('2d');
+        new Chart(ctxSales, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Sales (MMK)',
+                    data: [0, 0, 0, 0, 0, 0, 0], // ရောင်းအားဒေတာများ ထည့်ရန်
+                    borderColor: '#c75d83',
+                    backgroundColor: '#c75d8320',
+                    fill: true,
+                    tension: 0.3
+                }]
+            }
+        });
+
+        // Category Chart (Doughnut - Dynamic from Database)
+        const categoryLabels = @json($categoryNames);
+        const categoryData = @json($categoryCounts);
+
+        const ctxCat = document.getElementById('categoryChart').getContext('2d');
+        new Chart(ctxCat, {
+            type: 'doughnut',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryData,
+                    backgroundColor: ['#c75d83', '#e8a5be', '#f3ccd9', '#f8d7e0', '#d88da5']
+                }]
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

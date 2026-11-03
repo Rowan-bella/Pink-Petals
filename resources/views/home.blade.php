@@ -290,7 +290,14 @@
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="#products">Products</a>
+                        <a class="nav-link" href="{{ route('shop.products') }}">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ route('login')}}">Login</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('register')}}">Register</a>
                     </li>
                     
                 </ul>
@@ -316,13 +323,13 @@
                         of life's little moments.
                     </p>
 
-                    <a href="#products" class="btn-pink mt-3">
+                    <a href="{{ route('shop.products') }}" class="btn-pink mt-3">
                         Shop Now &nbsp; →
                     </a>
                 </div>
 
             <div class="col-lg-6">
-                    <img src="{{ asset('images/hero4.jpg') }}"
+                    <img src="{{ asset('images/hero5.jpg') }}"
                          alt="Beautiful flower bouquet"
                          class="hero-image">
                 </div>
