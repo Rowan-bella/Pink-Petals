@@ -58,3 +58,7 @@ Route::get('/shop/category/{id}', [ProductController::class, 'shopByCategory'])-
 
 // Cart Route (Auth စစ်ဆေးချက်ပါဝင်သည်)
 Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');

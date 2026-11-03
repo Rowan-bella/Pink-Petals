@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -24,9 +22,9 @@ class CartController extends Controller
         $currentCartQuantity = isset($cart[$id]) ? $cart[$id]['quantity'] : 0;
         $totalQuantity = $currentCartQuantity + $requestedQuantity;
 
-        // Stock ထက် ကျော်လွန်ခြင်း ရှိမရှိ စစ်ဆေးမည်
+        // Stock ထက် ကျော်လွန်ခြင်း ရှိမရှိ စစ်ဆေးမည် (JavaScript Alert သုံးထားသဖြင့် ဤနေရာတွင် back() သာ ပြန်ပို့မည်)
         if ($totalQuantity > $product->stock) {
-            return back()->with('error', "တောင်းဆိုထားသော ပမာဏသည် လက်ကျန် Stock ({$product->stock}) ထက် ကျော်လွန်နေပါသည်။");
+            return back();
         }
 
         // Cart Session ထဲသို့ ထည့်ခြင်း
@@ -40,6 +38,50 @@ class CartController extends Controller
         session()->put('cart', $cart);
 
         // အောင်မြင်ကြောင်း Success Message ဖြင့် မူလ မျက်နှာပြင်သို့ ပြန်ပို့မည်
-        return back()->with('success', 'ပန်းပစ္စည်းကို Cart ထဲသို့ အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။');
+        return back();
     }
+    // Cart စာမျက်နှာပြသရန်
+    public function index()
+    {
+        $cart = session()->get('cart', []);
+        return view('cart.index', compact('cart'));
+    }
+    // Quantity တိုး/လျော့ လုပ်ခြင်း (+ / -)
+    public function update(Request $request, $id)
+    {
+        $cart = session()->get('cart', []);
+        
+        if(isset($cart[$id])) {
+            if($request->change === 'increase') {
+                $cart[$id]['quantity']++;
+            } elseif($request->change === 'decrease') {
+                $cart[$id]['quantity']--;
+                if($cart[$id]['quantity'] <= 0) {
+                    unset($cart[$id]);
+                }
+            }
+            session()->put('cart', $cart);
+        }
+        
+        return back();
+    }
+
+    // ပစ္စည်းတစ်ခုချင်း ဖျက်ခြင်း
+    public function remove($id)
+    {
+        $cart = session()->get('cart', []);
+        if(isset($cart[$id])) {
+            unset($cart[$id]);
+            session()->put('cart', $cart);
+        }
+        return back();
+    }
+
+    // အားလုံးကို ဖျက်ခြင်း (Clear All)
+    public function clear()
+    {
+        session()->forget('cart');
+        return back();
+    }
+
 }

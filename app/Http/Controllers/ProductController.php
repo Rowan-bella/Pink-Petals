@@ -145,17 +145,17 @@ public function shopIndex(Request $request)
         if ($request->has('prices')) {
             $query->where(function($q) use ($request) {
                 foreach ($request->prices as $priceRange) {
-                    if ($priceRange == 'under_20k') {
-                        $q->orWhere('price', '<', 20000);
+                    if ($priceRange == 'under_40k') {
+                        $q->orWhere('price', '<', 40000);
                     }
-                    if ($priceRange == '20k_30k') {
-                        $q->orWhereBetween('price', [20000, 30000]);
+                    if ($priceRange == '40k_60k') {
+                        $q->orWhereBetween('price', [40000, 60000]);
                     }
-                    if ($priceRange == '30k_40k') {
-                        $q->orWhereBetween('price', [30000, 40000]);
+                    if ($priceRange == '60k_80k') {
+                        $q->orWhereBetween('price', [60000, 80000]);
                     }
-                    if ($priceRange == 'over_40k') {
-                        $q->orWhere('price', '>', 40000);
+                    if ($priceRange == 'over_80k') {
+                        $q->orWhere('price', '>', 80000);
                     }
                 }
             });
@@ -188,24 +188,24 @@ public function shopIndex(Request $request)
         $query = Product::with('category')->where('category_id', $id);
 
         // Price Filter စစ်ဆေးခြင်း
-        if ($request->has('prices')) {
-            $query->where(function($q) use ($request) {
-                foreach ($request->prices as $priceRange) {
-                    if ($priceRange == 'under_20k') {
-                        $q->orWhere('price', '<', 20000);
-                    }
-                    if ($priceRange == '20k_30k') {
-                        $q->orWhereBetween('price', [20000, 30000]);
-                    }
-                    if ($priceRange == '30k_40k') {
-                        $q->orWhereBetween('price', [30000, 40000]);
-                    }
-                    if ($priceRange == 'over_40k') {
-                        $q->orWhere('price', '>', 40000);
-                    }
-                }
-            });
+if ($request->has('prices')) {
+    $query->where(function($q) use ($request) {
+        foreach ($request->prices as $index => $priceRange) {
+            // ပထမဆုံး Checkbox အတွက် where သုံးပြီး၊ ကျန်တာတွေအတွက် orWhere သုံးရန်
+            $method = $index === 0 ? 'where' : 'orWhere';
+
+            if ($priceRange == 'under_40k') {
+                $q->$method('price', '<', 40000);
+            } elseif ($priceRange == '40k_60k') {
+                $q->{$method . 'Between'}('price', [40000, 60000]);
+            } elseif ($priceRange == '60k_80k') {
+                $q->{$method . 'Between'}('price', [60000, 80000]);
+            } elseif ($priceRange == 'over_80k') {
+                $q->$method('price', '>', 80000);
+            }
         }
+    });
+}
 
         // Availability Filter စစ်ဆေးခြင်း
         if ($request->has('availability')) {
