@@ -155,7 +155,7 @@
                         <span class="fw-bold fs-5" style="color: var(--pink-primary);">{{ number_format($subtotal ?? 0) }} MMK</span>
                     </div>
 
-                    <a href="#" class="btn btn-pink w-100 rounded-pill py-2 fw-semibold mb-2">
+                    <a href="{{route('checkout.index')}}" class="btn btn-pink w-100 rounded-pill py-2 fw-semibold mb-2">
                         Proceed to Checkout
                     </a>
 
