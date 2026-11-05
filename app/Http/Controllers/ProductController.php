@@ -1,38 +1,62 @@
 <?php
 namespace App\Http\Controllers;
+use Carbon\Carbon; 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    // Admin Dashboard မျက်နှာပြင်အတွက် ဒေတာများ ပို့ပေးရန်
+    // ဖိုင်အပေါ်ဆုံးတွင် Carbon ကို ခေါ်ထားရန်
+
+// ...
+
     public function dashboard()
     {
         $totalProducts = Product::count(); 
         $totalStock = Product::sum('stock'); 
-        
+        $totalRevenue = Order::whereIn('status', ['delivered', 'approved'])->sum('total_price');
+
+        // 💡 ယခုအပတ်၏ တနင်္လာနေ့မှ တနင်္ဂနွေနေ့အထိ တစ်ရက်ချင်းစီ၏ ရောင်းရငွေကို တိကျစွာ တွက်ချက်ခြင်း
+        $startOfWeek = now()->startOfWeek(Carbon::MONDAY);
+
+        $salesData = [
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(0))->sum('total_price'), // Mon
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(1))->sum('total_price'), // Tue
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(2))->sum('total_price'), // Wed
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(3))->sum('total_price'), // Thu (ကြာသပတေး - ယနေ့)
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(4))->sum('total_price'), // Fri
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(5))->sum('total_price'), // Sat
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(6))->sum('total_price'), // Sun
+        ];
+
         $categories = Category::withCount('products')->get();
         $categoryNames = $categories->pluck('name');
         $categoryCounts = $categories->pluck('products_count');
 
-        return view('admin.dashboard', compact('totalProducts', 'totalStock', 'categoryNames', 'categoryCounts'));
+        return view('admin.dashboard', compact(
+            'totalProducts', 
+            'totalStock', 
+            'totalRevenue', 
+            'categoryNames', 
+            'categoryCounts',
+            'salesData'
+        ));
     }
-
-    // Categories Card View အတွက် ဒေတာများ ယူဆောင်ရန်
-        public function categoryIndex()
+    
+    public function categoryIndex()
     {
         $categories = Category::withCount('products')->get();
 
         return view('admin.categories.index', compact('categories'));
     }
+
     // Read: ပန်းစာရင်းကြည့်ရန်
     public function index()
     {
         $products = Product::with('category')->latest()->get();
-            
-            
 
         return view('products.index', compact('products'));
     }
@@ -126,22 +150,22 @@ class ProductController extends Controller
             ->route('products.index')
             ->with('success', 'ပန်းပစ္စည်းကို ဖျက်ပြီးပါပြီ။');
     }
-   public function byCategory($id)
-{
-    $category = Category::findOrFail($id);
-    $products = Product::with('category')->where('category_id', $id)->latest()->get();
 
-    // Table ဖိုင် (`products.index`) အစား Card ပုံစံ View ဖိုင်သို့ ပို့ပေးရန်
-    return view('admin.categories.products', compact('products', 'category'));
-}
-public function shopIndex(Request $request)
+    public function byCategory($id)
+    {
+        $category = Category::findOrFail($id);
+        $products = Product::with('category')->where('category_id', $id)->latest()->get();
+
+        return view('admin.categories.products', compact('products', 'category'));
+    }
+
+    public function shopIndex(Request $request)
     {
         $categories = Category::withCount('products')->get();
         $selectedCategory = null;
 
         $query = Product::with('category');
 
-        // Price Filter စစ်ဆေးခြင်း
         if ($request->has('prices')) {
             $query->where(function($q) use ($request) {
                 foreach ($request->prices as $priceRange) {
@@ -161,7 +185,6 @@ public function shopIndex(Request $request)
             });
         }
 
-        // Availability Filter စစ်ဆေးခြင်း (stock > 0 ဆိုရင် In Stock, 0 ဆိုရင် Out of Stock ဟု ယူဆပါသည်)
         if ($request->has('availability')) {
             $query->where(function($q) use ($request) {
                 foreach ($request->availability as $status) {
@@ -187,27 +210,24 @@ public function shopIndex(Request $request)
         
         $query = Product::with('category')->where('category_id', $id);
 
-        // Price Filter စစ်ဆေးခြင်း
-if ($request->has('prices')) {
-    $query->where(function($q) use ($request) {
-        foreach ($request->prices as $index => $priceRange) {
-            // ပထမဆုံး Checkbox အတွက် where သုံးပြီး၊ ကျန်တာတွေအတွက် orWhere သုံးရန်
-            $method = $index === 0 ? 'where' : 'orWhere';
+        if ($request->has('prices')) {
+            $query->where(function($q) use ($request) {
+                foreach ($request->prices as $index => $priceRange) {
+                    $method = $index === 0 ? 'where' : 'orWhere';
 
-            if ($priceRange == 'under_40k') {
-                $q->$method('price', '<', 40000);
-            } elseif ($priceRange == '40k_60k') {
-                $q->{$method . 'Between'}('price', [40000, 60000]);
-            } elseif ($priceRange == '60k_80k') {
-                $q->{$method . 'Between'}('price', [60000, 80000]);
-            } elseif ($priceRange == 'over_80k') {
-                $q->$method('price', '>', 80000);
-            }
+                    if ($priceRange == 'under_40k') {
+                        $q->$method('price', '<', 40000);
+                    } elseif ($priceRange == '40k_60k') {
+                        $q->{$method . 'Between'}('price', [40000, 60000]);
+                    } elseif ($priceRange == '60k_80k') {
+                        $q->{$method . 'Between'}('price', [60000, 80000]);
+                    } elseif ($priceRange == 'over_80k') {
+                        $q->$method('price', '>', 80000);
+                    }
+                }
+            });
         }
-    });
-}
 
-        // Availability Filter စစ်ဆေးခြင်း
         if ($request->has('availability')) {
             $query->where(function($q) use ($request) {
                 foreach ($request->availability as $status) {
@@ -225,5 +245,4 @@ if ($request->has('prices')) {
 
         return view('shop.index', compact('products', 'categories', 'selectedCategory'));
     }
-
 }

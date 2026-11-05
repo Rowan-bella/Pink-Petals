@@ -6,28 +6,20 @@ use Illuminate\Http\Request;
 class CartController extends Controller
 {
     // Add to Cart လုပ်ဆောင်ချက်
+    
     public function addToCart(Request $request, $id)
     {
-        // Login ဝင်မထားပါက Login Page သို့ ပို့မည်
-        if (!auth()->check()) {
-            session(['url.intended' => url()->previous()]);
-            return redirect()->route('login')->with('error', 'ကျေးဇူးပြု၍ အရင်ဆုံး Login ဝင်ပေးပါရှင်။');
-        }
-
         $product = Product::findOrFail($id);
         $cart = session()->get('cart', []);
         
-        // Input ကလာသော quantity ကို ယူမည် (မပါပါက 1 ဟု သတ်မှတ်မည်)
         $requestedQuantity = (int) $request->input('quantity', 1);
         $currentCartQuantity = isset($cart[$id]) ? $cart[$id]['quantity'] : 0;
         $totalQuantity = $currentCartQuantity + $requestedQuantity;
 
-        // Stock ထက် ကျော်လွန်ခြင်း ရှိမရှိ စစ်ဆေးမည် (JavaScript Alert သုံးထားသဖြင့် ဤနေရာတွင် back() သာ ပြန်ပို့မည်)
         if ($totalQuantity > $product->stock) {
             return back();
         }
 
-        // Cart Session ထဲသို့ ထည့်ခြင်း
         $cart[$id] = [
             'name' => $product->name,
             'price' => $product->price,
@@ -36,8 +28,15 @@ class CartController extends Controller
         ];
 
         session()->put('cart', $cart);
+        session()->save();
 
-        // အောင်မြင်ကြောင်း Success Message ဖြင့် မူလ မျက်နှာပြင်သို့ ပြန်ပို့မည်
+        // 💡 Login ဝင်မထားပါက လက်ရှိ Products Page ရဲ့ URL ကို သိမ်းပြီး product_id ပါ တွဲပို့မည်
+        if (!auth()->check()) {
+            session(['url.intended' => url()->previous()]);
+            session()->save();
+            return redirect()->to(route('login') . '?product_id=' . $id);
+        }
+
         return back();
     }
     // Cart စာမျက်နှာပြသရန်
@@ -46,6 +45,7 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
         return view('cart.index', compact('cart'));
     }
+
     // Quantity တိုး/လျော့ လုပ်ခြင်း (+ / -)
     public function update(Request $request, $id)
     {
@@ -61,6 +61,7 @@ class CartController extends Controller
                 }
             }
             session()->put('cart', $cart);
+            session()->save();
         }
         
         return back();
@@ -73,6 +74,7 @@ class CartController extends Controller
         if(isset($cart[$id])) {
             unset($cart[$id]);
             session()->put('cart', $cart);
+            session()->save();
         }
         return back();
     }
@@ -81,7 +83,7 @@ class CartController extends Controller
     public function clear()
     {
         session()->forget('cart');
+        session()->save();
         return back();
     }
-
 }

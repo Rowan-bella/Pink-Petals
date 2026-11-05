@@ -41,6 +41,7 @@
                 <a href="{{ route('home') }}" class="text-decoration-none text-dark fw-semibold">Home</a>
                 <a href="{{ route('shop.products') }}" class="text-decoration-none text-dark fw-semibold">Products</a>
                 <a href="{{ route('cart.index') }}" class="text-decoration-none fw-semibold" style="color: var(--pink-primary);">Cart</a>
+                
             </div>
         </div>
     </nav>

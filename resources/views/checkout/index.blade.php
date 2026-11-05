@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -62,8 +62,8 @@
             </div>
         </div>
 
-        <!-- Single Form for the entire checkout section -->
-        <form action="{{ route('checkout.payment') }}" method="POST">
+        <!-- 💡 Form action ကို processShipping route သို့ ချိတ်ဆက်ပေးခြင်း -->
+        <form action="{{ route('checkout.shipping.process') }}" method="POST">
             @csrf
             <div class="row g-4">
                 <!-- Left Side: Delivery Information Form -->
@@ -76,23 +76,32 @@
                         <!-- Phone Number -->
                         <div class="mb-3">
                             <label class="form-label small fw-semibold text-muted">Phone Number</label>
-                            <input type="text" name="phone" class="form-control" value="{{ Auth::user()->phone ?? '' }}" placeholder="" required>
+                            <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone', Auth::user()->phone ?? '') }}" placeholder="" required>
+                            @error('phone')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <!-- Select Delivery Area -->
                         <div class="mb-3">
                             <label class="form-label small fw-semibold text-muted">Select Delivery Area </label>
-                            <select name="delivery_area" id="deliveryArea" class="form-select" required onchange="updateTotal()">
-                                <option value="3000">ရန်ကုန် / မန္တလေး မြို့တွင်း (3,000 MMK)</option>
-                                <option value="2000">ကားဂိတ်ချ(2,000 MMK)</option>
-                                <option value="5000">အခြား နယ်မြို့များ (5,000 MMK)</option>
+                            <select name="delivery_area" id="deliveryArea" class="form-select @error('delivery_area') is-invalid @enderror" required onchange="updateTotal()">
+                                <option value="3000" {{ old('delivery_area') == '3000' ? 'selected' : '' }}>ရန်ကုန် / မန္တလေး မြို့တွင်း (3,000 MMK)</option>
+                                <option value="2000" {{ old('delivery_area', '2000') == '2000' ? 'selected' : '' }}>ကားဂိတ်ချ (2,000 MMK)</option>
+                                <option value="5000" {{ old('delivery_area') == '5000' ? 'selected' : '' }}>အခြား နယ်မြို့များ (5,000 MMK)</option>
                             </select>
+                            @error('delivery_area')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <!-- Delivery Address -->
                         <div class="mb-3">
                             <label class="form-label small fw-semibold text-muted">Delivery Address </label>
-                            <textarea name="address" class="form-control" rows="4" placeholder="" required></textarea>
+                            <textarea name="address" class="form-control @error('address') is-invalid @enderror" rows="4" placeholder="" required>{{ old('address') }}</textarea>
+                            @error('address')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -139,9 +148,9 @@
                             <span class="fw-bold fs-5" style="color: var(--pink-primary);"><span id="grandTotal">0</span> MMK</span>
                         </div>
 
-                        <!-- Place Order Button -->
+                        <!-- Proceed to Payment Button -->
                         <button type="submit" class="btn btn-pink w-100 rounded-pill py-2 fw-semibold mb-2 shadow-sm">
-                            <i class="fa-solid fa-circle-check me-1"></i> Place Order
+                            <i class="fa-solid fa-circle-chevron-right me-1"></i> Proceed to Payment
                         </button>
 
                         <!-- Back to Cart Button -->

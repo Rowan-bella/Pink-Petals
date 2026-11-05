@@ -60,22 +60,11 @@
             background: var(--pink-primary);
             color: white;
         }
-        .sidebar-footer {
-            padding: 15px;
-            border-top: 1px solid #f8d7e0;
-        }
 
         /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 25px;
-        }
-        .top-navbar {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 25px;
         }
         
         /* Cards & Graphs */
@@ -97,41 +86,35 @@
 <body>
 
     <div class="sidebar">
-    <a href="#" class="sidebar-brand">
-        🌸 <span>Pink Petals</span>
-    </a>
-    <ul class="sidebar-menu">
-        <!-- Dashboard - Admin နဲ့ Manager သာ မြင်ရမည် -->
-        @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
-            <li><a href="{{ route('admin.dashboard') }}" class="active"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-        @endif
+        <a href="#" class="sidebar-brand">
+            🌸 <span>Pink Petals</span>
+        </a>
+        <ul class="sidebar-menu">
+            @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+                <li><a href="{{ route('admin.dashboard') }}" class="active"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            @endif
 
-        <!-- Products - Admin နဲ့ Manager သာ မြင်ရမည် (Staff မမြင်ရပါ) -->
-        @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
-            <li><a href="{{ route('products.index') }}"><i class="fa-solid fa-box"></i> Products</a></li>
-        @endif
+            @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+                <li><a href="{{ route('products.index') }}"><i class="fa-solid fa-box"></i> Products</a></li>
+            @endif
 
-        <!-- Categories - Admin, Manager, Staff အားလုံး မြင်ရမည် -->
-        <li><a href="{{ route('admin.categories') }}"><i class="fa-solid fa-list"></i> Categories</a></li>
+            <li><a href="{{ route('admin.categories') }}"><i class="fa-solid fa-list"></i> Categories</a></li>
 
-        <!-- Orders (လိုအပ်ပါက Admin/Manager သာပြရန် ထည့်နိုင်သည်) -->
-        @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
-            <li><a href="#"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
-        @endif
+            @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager' || strtolower(auth()->user()->role) === 'staff')
+                <li><a href="{{ route('admin.orders') }}"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
+            @endif
 
-        <!-- Users - Admin သာလျှင် မြင်ရမည် -->
-        @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'manager'))
-            <li><a href="{{ route('admin.users.index')}}"><i class="fa-solid fa-users"></i> Users</a></li>
-        @endif
+            @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'manager'))
+                <li><a href="{{ route('admin.users.index')}}"><i class="fa-solid fa-users"></i> Users</a></li>
+            @endif
 
-        <li><a href="{{ route('home')}}" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
-    </ul>
-</div><!-- Main Content Area -->
+            <li><a href="{{ route('home')}}" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content Area -->
     <div class="main-content">
-        <!-- Top Navbar -->
-        
-
-        <!-- Top Stat Boxes (Database မှ ဒေတာများဖြင့် ပြသခြင်း) -->
+        <!-- Top Stat Boxes -->
         <div class="row g-4 mb-4">
             <div class="col-md-4">
                 <div class="stat-card">
@@ -148,14 +131,13 @@
             <div class="col-md-4">
                 <div class="stat-card">
                     <h6 class="text-muted">Total Revenue</h6>
-                    <h3 class="fw-bold" style="color: var(--pink-primary);">0 MMK</h3>
+                    <h3 class="fw-bold" style="color: var(--pink-primary);">{{ number_format($totalRevenue) }} MMK</h3>
                 </div>
-                
             </div>
         </div>
 
         <!-- Graphs Section -->
-        <div class="row">
+        <div class="row g-4">
             <!-- Line Chart (Sales Overview) -->
             <div class="col-md-8">
                 <div class="chart-card">
@@ -174,9 +156,12 @@
         </div>
     </div>
 
-    <!-- Chart.js Initialization Script (Dynamic Data from Controller) -->
+    <!-- Chart.js Initialization Script -->
     <script>
-        // Sales Chart (Line)
+        // Sales Chart (Line) - Dynamic from Controller
+     // Sales Chart (Line) - Dynamic from Controller
+        const salesDataValues = @json($salesData);
+
         const ctxSales = document.getElementById('salesChart').getContext('2d');
         new Chart(ctxSales, {
             type: 'line',
@@ -184,7 +169,7 @@
                 labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 datasets: [{
                     label: 'Sales (MMK)',
-                    data: [0, 0, 0, 0, 0, 0, 0], // ရောင်းအားဒေတာများ ထည့်ရန်
+                    data: salesDataValues,
                     borderColor: '#c75d83',
                     backgroundColor: '#c75d8320',
                     fill: true,

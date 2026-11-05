@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +7,6 @@
     <title>Login | Pink Petals</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -75,11 +73,6 @@
             background: #b04c71;
             color: white;
         }
-
-        .form-check-input:checked {
-            background-color: var(--pink-primary);
-            border-color: var(--pink-primary);
-        }
     </style>
 </head>
 
@@ -133,24 +126,26 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
+            <!-- 💡 Login မဝင်ခင်က နှိပ်ထားသော Product ID ကို ဖမ်းယူပေးမည့် Hidden Input -->
+            <input type="hidden" name="product_id" value="{{ request('product_id') }}">
+
             <!-- Email -->
             <div class="mb-3 position-relative">
                 <i class="fa-regular fa-envelope input-group-icon"></i>
 
                 <input
-        type="text"
-        name="email"
-        class="form-control form-control-custom"
-        placeholder="Email address"
-        value="{{ old('email') }}"
-        autocomplete="email"
-        inputmode="email"
-        required
+                    type="text"
+                    name="email"
+                    class="form-control form-control-custom"
+                    placeholder="Email address"
+                    value="{{ old('email') }}"
+                    autocomplete="email"
+                    inputmode="email"
+                    required
                 >
             </div>
 
             <!-- Password -->
-             @csrf
             <div class="mb-3 position-relative">
                 <i class="fa-solid fa-lock input-group-icon"></i>
 
@@ -163,7 +158,6 @@
                 >
             </div>
 
-           
             <!-- Login Button -->
             <div class="d-grid gap-2">
 
@@ -178,6 +172,7 @@
                 >
                     Create an Account (Register)
                 </a>
+                
                 <a
                     href="{{ route('home') }}"
                     class="btn btn-outline-secondary rounded-pill py-2 text-decoration-none text-center"

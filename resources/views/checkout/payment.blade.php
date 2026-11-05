@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -74,37 +74,44 @@
 
                 <!-- Cash on Delivery -->
                 <div class="form-check p-3 border rounded-3 mb-3 d-flex align-items-center gap-3">
-                    <input class="form-check-input ms-0" type="radio" name="payment_method" id="cod" value="cod" checked onchange="togglePaymentFields()">
+                    <input class="form-check-input ms-0" type="radio" name="payment_method" id="cod" value="cod" {{ old('payment_method', 'cod') == 'cod' ? 'checked' : '' }} onchange="togglePaymentFields()">
                     <label class="form-check-label fw-semibold text-dark w-100 cursor-pointer" for="cod">
-                        <i class="fa-solid fa-house-chimney text-pink me-2" style="color: var(--pink-primary);"></i> Cash on Delivery 
+                        <i class="fa-solid fa-house-chimney me-2" style="color: var(--pink-primary);"></i> Cash on Delivery 
                     </label>
                 </div>
 
                 <!-- KBZPay -->
                 <div class="form-check p-3 border rounded-3 mb-3 d-flex align-items-center gap-3">
-                    <input class="form-check-input ms-0" type="radio" name="payment_method" id="kbzpay" value="kbzpay" onchange="togglePaymentFields()">
+                    <input class="form-check-input ms-0" type="radio" name="payment_method" id="kbzpay" value="kbzpay" {{ old('payment_method') == 'kbzpay' ? 'checked' : '' }} onchange="togglePaymentFields()">
                     <label class="form-check-label fw-semibold text-dark w-100 cursor-pointer" for="kbzpay">
-                        <i class="fa-solid fa-mobile-screen text-pink me-2" style="color: var(--pink-primary);"></i> KBZPay
+                        <i class="fa-solid fa-mobile-screen me-2" style="color: var(--pink-primary);"></i> KBZPay
                     </label>
                 </div>
 
                 <!-- WavePay -->
                 <div class="form-check p-3 border rounded-3 mb-3 d-flex align-items-center gap-3">
-                    <input class="form-check-input ms-0" type="radio" name="payment_method" id="wavepay" value="wavepay" onchange="togglePaymentFields()">
+                    <input class="form-check-input ms-0" type="radio" name="payment_method" id="wavepay" value="wavepay" {{ old('payment_method') == 'wavepay' ? 'checked' : '' }} onchange="togglePaymentFields()">
                     <label class="form-check-label fw-semibold text-dark w-100 cursor-pointer" for="wavepay">
-                        <i class="fa-solid fa-wallet text-pink me-2" style="color: var(--pink-primary);"></i> WavePay
+                        <i class="fa-solid fa-wallet me-2" style="color: var(--pink-primary);"></i> WavePay
                     </label>
                 </div>
 
                 <!-- Online Payment Details Box (KBZPay / WavePay Info & Screenshot Upload) -->
                 <div id="onlinePaymentBox" class="p-4 border rounded-3 bg-light mt-3" style="display: none;">
                     <div class="mb-3 small text-muted">
-                        <i class="fa-solid fa-circle-info text-pink me-1" style="color: var(--pink-primary);"></i> 
+                        <i class="fa-solid fa-circle-info me-1" style="color: var(--pink-primary);"></i> 
                         <span id="accountInfo">KBZPay Phone: 09-450310990 (Name: YA MIN SHWE SIN)</span>
                     </div>
                     <div class="mb-2">
                         <label class="form-label small fw-semibold text-muted">ငွေလွှဲပြေစာ ပုံ တင်ပေးပါ -</label>
-                        <input type="file" name="payment_slip" class="form-control" accept="image/*">
+                        <input type="file" name="payment_slip" class="form-control @error('payment_slip') is-invalid @enderror" accept="image/*">
+                        
+                        <!-- Validation Error Message -->
+                        @error('payment_slip')
+                            <div class="text-danger small mt-1 fw-semibold">
+                                <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -135,6 +142,11 @@
                 box.style.display = 'none';
             }
         }
+
+        // Page load လုပ်ချိန် (သို့မဟုတ် error တက်၍ page ပြန်ကျလာချိန်) တွင် ရွေးချယ်ထားသော payment ပေါ်မူတည်၍ box ပေါ်နေစေရန်
+        document.addEventListener("DOMContentLoaded", function() {
+            togglePaymentFields();
+        });
     </script>
 
     <!-- Bootstrap JS CDN -->

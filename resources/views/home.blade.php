@@ -174,7 +174,7 @@
                 <a href="{{ route('home') }}" class="text-decoration-none text-dark fw-semibold">Home</a>
                 <a href="{{ route('shop.products') }}" class="text-decoration-none text-dark fw-semibold">Products</a>
                 
-                @if(auth()->check())
+                @auth
                     <span class="fw-semibold text-secondary small d-none d-md-inline">
                         <i class="fa-solid fa-user me-1" style="color: var(--pink-primary);"></i> မင်္ဂလာပါ၊ {{ auth()->user()->name }}
                     </span>
@@ -199,14 +199,15 @@
                         @csrf
                         <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Logout</button>
                     </form>
-                @else
+                @endauth
+
+                @guest
                     <a href="{{ route('login') }}" class="text-decoration-none text-dark fw-semibold">Login</a>
                     <a href="{{ route('register') }}" class="text-decoration-none text-dark fw-semibold">Register</a>
-                @endif
+                @endguest
             </div>
         </div>
     </nav>
-
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">

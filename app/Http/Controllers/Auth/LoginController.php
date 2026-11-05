@@ -1,6 +1,9 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
+
 use App\Models\User;
+use App\Models\Product;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,12 +12,11 @@ use Illuminate\Support\Facades\Hash;
 class LoginController extends Controller
 {
     // Login Form
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
         return view('auth.login');
     }
 
-    // Login
     public function login(Request $request)
     {
         $request->validate([
@@ -24,35 +26,56 @@ class LoginController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        // Check Email and Password
         if (!$user || !Hash::check($request->password, $user->password)) {
             return back()->withErrors([
                 'email' => 'အီးမေးလ် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။',
             ])->onlyInput('email');
         }
 
-        // Login
+        // Login ဝင်ခြင်း
         Auth::login($user, $request->boolean('remember'));
-
         $request->session()->regenerate();
 
-        // Get Role from Database
-        $role = strtolower($user->role);
+        // 💡 URL (သို့) Request ထဲပါလာသော product_id ဖြင့် Cart ထဲသို့ ထည့်ခြင်း
+        $productId = $request->input('product_id') ?? $request->query('product_id');
 
-        // Admin and Manager
+        if ($productId) {
+            $product = Product::find($productId);
+
+            if ($product) {
+                $cart = session()->get('cart', []);
+                
+                if (isset($cart[$productId])) {
+                    $cart[$productId]['quantity'] += 1;
+                } else {
+                    $cart[$productId] = [
+                        'name' => $product->name,
+                        'price' => $product->price,
+                        'image' => $product->image,
+                        'quantity' => 1
+                    ];
+                }
+                session()->put('cart', $cart);
+                session()->save();
+            }
+        }
+
+        // 💡 Normal User ဖြစ်ပါက Cart Page သို့ မပို့ဘဲ မူလကြည့်နေကျ Products Page သို့ တန်းပြန်ပို့မည်
+        if (strtolower($user->role) === 'user') {
+            return redirect()->intended(route('shop.products'));
+        }
+
+        // Role အလိုက် အခြားနေရာများသို့ ပို့ရန်
+        $role = strtolower($user->role);
         if ($role === 'admin' || $role === 'manager') {
             return redirect()->route('admin.dashboard');
         }
-
-        // Staff
         if ($role === 'staff') {
             return redirect()->route('admin.categories');
         }
 
-        // Normal User
         return redirect()->route('home');
     }
-
     // Logout
     public function logout(Request $request)
     {

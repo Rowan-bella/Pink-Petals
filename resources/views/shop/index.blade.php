@@ -42,10 +42,9 @@
                 <a href="{{ route('shop.products') }}" class="text-decoration-none fw-semibold" style="color: var(--pink-primary);">Products</a>
                 
                 @if(auth()->check())
-                <span class="fw-semibold text-secondary small d-none d-md-inline">
+                    <span class="fw-semibold text-secondary small d-none d-md-inline">
                         <i class="fa-solid fa-user me-1" style="color: var(--pink-primary);"></i> မင်္ဂလာပါ၊ {{ auth()->user()->name }}
                     </span>
-                    {{-- User Login ဝင်ထားပါက Cart Count နှင့် Logout ပြရန် --}}
                     @php
                         $cartCount = 0;
                         if(session('cart')) {
@@ -65,7 +64,6 @@
                         <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Logout</button>
                     </form>
                 @else
-                    {{-- User Login မဝင်ရသေးပါက Login နှင့် Register ပြရန် --}}
                     <a href="{{ route('login') }}" class="text-decoration-none text-dark fw-semibold">Login</a>
                     <a href="{{ route('register') }}" class="text-decoration-none text-dark fw-semibold">Register</a>
                 @endif
@@ -76,7 +74,6 @@
     <!-- Main Content -->
     <div class="container py-4">
         
-        <!-- Flash Messages (Success သာ ထားရှိမည်၊ Error Box ဖြုတ်ထားသည်) -->
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
                 <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
@@ -86,7 +83,7 @@
 
         <div class="row g-4">
             
-            <!-- ဘယ်ဘက်ခြမ်း Sidebar (Filter Form သီးသန့်) -->
+            <!-- ဘယ်ဘက်ခြမ်း Sidebar (Filter Form သီးသန့် - မူလအတိုင်း အပြည့်အစုံ) -->
             <div class="col-lg-3 col-md-4">
                 <form action="{{ isset($selectedCategory) ? route('shop.category', $selectedCategory->id) : route('shop.products') }}" method="GET">
                     
@@ -173,7 +170,6 @@
                     @forelse($products as $product)
                         <div class="col-md-3 mb-4">
                             <div class="card h-100 shadow-sm border-0 rounded-4">
-                                <!-- Product ပုံ -->
                                 @if(data_get($product, 'image'))
                                     <img src="{{ asset('storage/' . data_get($product, 'image')) }}" class="card-img-top p-3 rounded-4" alt="{{ data_get($product, 'name') }}" style="height: 160px; object-fit: cover;">
                                 @else
@@ -181,15 +177,12 @@
                                 @endif
                                 
                                 <div class="card-body d-flex flex-column">
-                                    <!-- Product Name -->
                                     <h6 class="card-title fw-bold text-truncate mb-1" title="{{ data_get($product, 'name') }}">
                                         {{ data_get($product, 'name') }}
                                     </h6>
                                     
-                                    <!-- Category Name -->
                                     <p class="text-muted small mb-1">{{ data_get($product, 'category.name') ?? 'Uncategorized' }}</p>
 
-                                    <!-- Stock Status Badge -->
                                     <div class="mb-2">
                                         @if(data_get($product, 'stock', 0) > 0)
                                             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" style="font-size: 0.75rem;">
@@ -202,50 +195,44 @@
                                         @endif
                                     </div>
 
-                                    <!-- Description -->
                                     @if(data_get($product, 'description'))
                                         <div class="text-muted small mb-2" style="font-size: 0.8rem; line-height: 1.4;">
                                             {{ data_get($product, 'description') }}
                                         </div>
                                     @endif
 
-                                    <!-- Price -->
                                     <p class="fw-bold mb-3 small" style="color: var(--pink-primary);">
                                         {{ number_format(data_get($product, 'price', 0)) }} MMK
                                     </p>
                                     
-                                    <!-- Add to Cart / Out of Stock Button with Quantity (+/-) -->
-                                        <div class="mt-auto">
-                                            @if(data_get($product, 'stock', 0) > 0)
-                                                <form action="{{ route('cart.add', data_get($product, 'id')) }}" method="POST" onsubmit="return checkStock(event, {{ data_get($product, 'stock') }})">
-                                                    @csrf
-                                                    <div class="d-flex align-items-center gap-1">
-                                                        <!-- Quantity Increment/Decrement Input -->
-                                                        <div class="input-group input-group-sm" style="width: 100px;">
-                                                            <button type="button" class="btn btn-outline-secondary px-1" onclick="this.parentNode.querySelector('input[type=number]').stepDown()">-</button>
-                                                            <!-- id ဖြင့် သေသေချာချာ ထည့်ပေးရန် -->
-                                                            <input type="number" name="quantity" value="1" min="1" id="qty-{{ data_get($product, 'id') }}" class="form-control text-center px-1">
-                                                            <button type="button" class="btn btn-outline-secondary px-1" onclick="this.parentNode.querySelector('input[type=number]').stepUp()">+</button>
-                                                        </div>
-
-                                                        <!-- Add to Cart Button -->
-                                                        @if(auth()->check())
-                                                            <button type="submit" class="btn btn-pink btn-sm flex-grow-1 py-1" style="font-size: 0.75rem;">
-                                                                <i class="fa-solid fa-cart-shopping"></i> Add
-                                                            </button>
-                                                        @else
-                                                            <button type="button" class="btn btn-pink btn-sm flex-grow-1 py-1" style="font-size: 0.75rem;" onclick="showLoginAlert()">
-                                                                <i class="fa-solid fa-cart-shopping"></i> Add
-                                                            </button>
-                                                        @endif
+                                    <div class="mt-auto">
+                                        @if(data_get($product, 'stock', 0) > 0)
+                                            <form action="{{ route('cart.add', data_get($product, 'id')) }}" method="POST" onsubmit="return checkStock(event, {{ data_get($product, 'stock') }})">
+                                                @csrf
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <div class="input-group input-group-sm" style="width: 100px;">
+                                                        <button type="button" class="btn btn-outline-secondary px-1" onclick="this.parentNode.querySelector('input[type=number]').stepDown()">-</button>
+                                                        <input type="number" name="quantity" value="1" min="1" id="qty-{{ data_get($product, 'id') }}" class="form-control text-center px-1">
+                                                        <button type="button" class="btn btn-outline-secondary px-1" onclick="this.parentNode.querySelector('input[type=number]').stepUp()">+</button>
                                                     </div>
-                                                </form>
-                                            @else
-                                                <button type="button" class="btn btn-secondary w-100 rounded-pill py-1" disabled style="font-size: 0.85rem;">
-                                                    Out of Stock
-                                                </button>
-                                            @endif
-                                        </div>
+
+                                                    @if(auth()->check())
+                                                        <button type="submit" class="btn btn-pink btn-sm flex-grow-1 py-1" style="font-size: 0.75rem;">
+                                                            <i class="fa-solid fa-cart-shopping"></i> Add
+                                                        </button>
+                                                    @else
+                                                        <button type="button" class="btn btn-pink btn-sm flex-grow-1 py-1" style="font-size: 0.75rem;" onclick="showLoginAlert({{ data_get($product, 'id') }})">
+                                                            <i class="fa-solid fa-cart-shopping"></i> Add
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                            </form>
+                                        @else
+                                            <button type="button" class="btn btn-secondary w-100 rounded-pill py-1" disabled style="font-size: 0.85rem;">
+                                                Out of Stock
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -259,50 +246,39 @@
 
         </div>
     </div>
-<!-- Bootstrap JS CDN -->
+
+    <!-- Bootstrap JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- JavaScript ဖြင့် ချက်ချင်း Alert ပေါ်ပြီးမှ Submit လုပ်ခြင်း -->
     <script>
         const loginUrl = "{{ route('login') }}";
         const isLoggedIn = @json(auth()->check());
 
-        function showLoginAlert() {
-            let confirmLogin = confirm("ကျေးဇူးပြု၍ Login အရင်ဝင်ပေးပါ။");
+        // Login မဝင်ရသေးလျှင် product_id ကို URL တွင် တွဲ၍ Login မျက်နှာပြင်သို့ ခေါ်သွားမည်
+        function showLoginAlert(productId) {
+            let confirmLogin = confirm("ကျေးဇူးပြု၍ Login အရင်ဝင်ပေးပါရှင်။");
             if (confirmLogin) {
-                window.location.href = loginUrl;
+                window.location.href = loginUrl + "?product_id=" + productId;
             }
         }
 
         function checkStock(event, maxStock) {
-            // ၁။ Login ဝင်ထားခြင်း ရှိမရှိ စစ်ဆေးမည်
             if (!isLoggedIn) {
                 event.preventDefault();
-                showLoginAlert();
                 return false;
             }
 
             let qtyInput = event.target.querySelector('input[name="quantity"]');
             let selectedQty = parseInt(qtyInput.value);
 
-            // ၂။ Stock ကျော်လွန်ခြင်း ရှိမရှိ စစ်ဆေးမည်
             if (selectedQty > maxStock) {
                 alert("တောင်းဆိုထားသော ပမာဏသည် လက်ကျန် Stock (" + maxStock + ") ထက် ကျော်လွန်နေပါသည်။");
                 event.preventDefault();
                 return false;
             }
 
-            // ၃။ ပုံမှန် Submit ကို ခဏတားဆီးမည်
-            event.preventDefault();
-            let currentForm = event.target;
-
-            // ၄။ Alert Box ကို အရင်ပြမည် (OK နှိပ်မှ Form ဆက်သွားမည်)
-            alert("ပန်းပစ္စည်းကို Cart ထဲသို့ အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။");
-            
-            // ၅။ Form ကို ဆက်လက် Submit လုပ်မည်
-            currentForm.submit();
             return true;
         }
     </script>
-    </body>
+</body>
 </html>
