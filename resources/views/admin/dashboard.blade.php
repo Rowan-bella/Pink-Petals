@@ -107,9 +107,15 @@
             @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'manager'))
                 <li><a href="{{ route('admin.users.index')}}"><i class="fa-solid fa-users"></i> Users</a></li>
             @endif
-
-            <li><a href="{{ route('home')}}" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
-        </ul>
+                <li>
+    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+        @csrf
+        <button type="submit" class="text-danger text-decoration-none d-flex align-items-center gap-2 border-0 bg-transparent w-100 p-2 text-start" style="font-weight: 500;">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+    </form>
+</li>
+                </ul>
     </div>
 
     <!-- Main Content Area -->

@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 💡 SweetAlert2 CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --pink-primary: #c75d83;
@@ -83,7 +85,7 @@
 
         <div class="row g-4">
             
-            <!-- ဘယ်ဘက်ခြမ်း Sidebar (Filter Form သီးသန့် - မူလအတိုင်း အပြည့်အစုံ) -->
+            <!-- ဘယ်ဘက်ခြမ်း Sidebar (Filter Form) -->
             <div class="col-lg-3 col-md-4">
                 <form action="{{ isset($selectedCategory) ? route('shop.category', $selectedCategory->id) : route('shop.products') }}" method="GET">
                     
@@ -207,7 +209,8 @@
                                     
                                     <div class="mt-auto">
                                         @if(data_get($product, 'stock', 0) > 0)
-                                            <form action="{{ route('cart.add', data_get($product, 'id')) }}" method="POST" onsubmit="return checkStock(event, {{ data_get($product, 'stock') }})">
+                                            <!-- 💡 Login ဝင်ထားပါက SweetAlert ဖြင့် Add to Cart လုပ်ရန် Form -->
+                                            <form action="{{ route('cart.add', data_get($product, 'id')) }}" method="POST" onsubmit="addToCartWithSweetAlert(event, this, {{ data_get($product, 'stock') }})">
                                                 @csrf
                                                 <div class="d-flex align-items-center gap-1">
                                                     <div class="input-group input-group-sm" style="width: 100px;">
@@ -254,31 +257,76 @@
         const loginUrl = "{{ route('login') }}";
         const isLoggedIn = @json(auth()->check());
 
-        // Login မဝင်ရသေးလျှင် product_id ကို URL တွင် တွဲ၍ Login မျက်နှာပြင်သို့ ခေါ်သွားမည်
+        // 💡 Login မဝင်ရသေးလျှင် product_id နှင့် quantity ပါ တွဲ၍ ပို့မည်
         function showLoginAlert(productId) {
+            let qtyInput = document.getElementById('qty-' + productId);
+            let qty = qtyInput ? qtyInput.value : 1;
+
             let confirmLogin = confirm("ကျေးဇူးပြု၍ Login အရင်ဝင်ပေးပါရှင်။");
             if (confirmLogin) {
-                window.location.href = loginUrl + "?product_id=" + productId;
+                window.location.href = loginUrl + "?product_id=" + productId + "&quantity=" + qty;
             }
         }
 
-        function checkStock(event, maxStock) {
-            if (!isLoggedIn) {
-                event.preventDefault();
-                return false;
-            }
+      function addToCartWithSweetAlert(event, form, maxStock) {
+        event.preventDefault(); // Form ပုံမှန် Submit ဖြစ်သွားမှုကို တားဆီးမည်
 
-            let qtyInput = event.target.querySelector('input[name="quantity"]');
-            let selectedQty = parseInt(qtyInput.value);
+        let qtyInput = form.querySelector('input[name="quantity"]');
+        let selectedQty = parseInt(qtyInput.value);
 
-            if (selectedQty > maxStock) {
-                alert("တောင်းဆိုထားသော ပမာဏသည် လက်ကျန် Stock (" + maxStock + ") ထက် ကျော်လွန်နေပါသည်။");
-                event.preventDefault();
-                return false;
-            }
-
-            return true;
+        if (selectedQty > maxStock) {
+            Swal.fire({
+                title: 'ပမာဏကျော်လွန်နေပါသည်',
+                text: 'တောင်းဆိုထားသော ပမာဏသည် လက်ကျန် Stock (' + maxStock + ') ထက် ကျော်လွန်နေပါသည်။',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+            return false;
         }
+
+        let formData = new FormData(form);
+        let actionUrl = form.action;
+
+        // AJAX ဖြင့် Server သို့ ပို့မည်
+        fetch(actionUrl, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // 💡 SweetAlert ဖြင့် အောင်မြင်ကြောင်းပြမည်
+                console.log(data);
+                Swal.fire({
+                    title: 'အောင်မြင်ပါသည်!',
+                    text: 'Cart ထဲသို့ ပစ္စည်းထည့်ပြီးပါပြီရှင်။',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false // Alert ပြီးရင် ဘေးနားကို နှိပ်လို့မရဘဲ OK ကို သေချာနှိပ်ခိုင်းမည်
+                }).then((result) => {
+                    // 💡 User က OK ကို နှိပ်လိုက်မှသာ (isConfirmed ဖြစ်မှသာ) လက်ရှိစာမျက်နှာကို Refresh လုပ်မည်
+                    if (result.isConfirmed) {
+                        location.reload(); 
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'မှားယွင်းနေပါသည်',
+                    text: data.message || 'တောင်းဆိုမှု မအောင်မြင်ပါ။',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
     </script>
 </body>
 </html>

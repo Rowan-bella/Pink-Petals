@@ -19,17 +19,11 @@ use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         Fortify::createUsersUsing(CreateNewUser::class);
@@ -38,7 +32,6 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
-        // Login နဲ့ Register View များကို ချိတ်ဆက်ခြင်း
         Fortify::loginView(function () {
             return view('auth.login');
         });
@@ -46,12 +39,44 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::registerView(function () {
             return view('auth.register');
         });
+         
+        Fortify::requestPasswordResetLinkView(function () {
+            return view('auth.forgot-password');
+        });
 
-        // 💡 Role အလိုက် Login ဝင်ပြီးပါက Redirect လုပ်ခြင်း
+        Fortify::resetPasswordView(function ($request) {
+            return view('auth.reset-password', ['request' => $request]);
+        });
+        
+        // 💡 Login ဝင်လိုက်တာနဲ့ URL မှ product_id ကို ဖမ်းပြီး Cart ထဲ ထည့်မည့် LoginResponse
         $this->app->singleton(LoginResponse::class, function () {
             return new class implements LoginResponse {
                 public function toResponse($request)
                 {
+                    $productId = $request->input('product_id');
+                    $quantity = $request->input('quantity', 1);
+
+                    if ($productId) {
+                        $product = \App\Models\Product::find($productId);
+
+                        if ($product) {
+                            $cart = session()->get('cart', []);
+                            
+                            if (isset($cart[$productId])) {
+                                $cart[$productId]['quantity'] += (int) $quantity;
+                            } else {
+                                $cart[$productId] = [
+                                    'name' => $product->name,
+                                    'price' => $product->price,
+                                    'image' => $product->image,
+                                    'quantity' => (int) $quantity
+                                ];
+                            }
+                            session()->put('cart', $cart);
+                            session()->save();
+                        }
+                    }
+
                     $user = auth()->user();
 
                     if ($user->hasRole(['admin', 'manager'])) {
@@ -62,12 +87,11 @@ class FortifyServiceProvider extends ServiceProvider
                         return redirect()->route('admin.orders');
                     }
 
-                    return redirect()->route('home');
+                    return redirect()->route('shop.products');
                 }
             };
         });
 
-        // 💡 Logout ထွက်ပါက Home သို့ တန်းသွားမည်၊ Session ရှင်းမည်၊ Browser Cache လုံးဝမတင်စေရန်
         $this->app->singleton(LogoutResponse::class, function () {
             return new class implements LogoutResponse {
                 public function toResponse($request)
@@ -84,7 +108,6 @@ class FortifyServiceProvider extends ServiceProvider
             };
         });
 
-        // 💡 Register ပြီးပါက Auto-login ဖြစ်မသွားစေဘဲ ချက်ချင်း Logout လုပ်ကာ Login စာမျက်နှာသို့ ပို့ရန်
         $this->app->singleton(RegisterResponse::class, function () {
             return new class implements RegisterResponse {
                 public function toResponse($request)

@@ -122,7 +122,7 @@
             </div>
         @endif
 
-        <!-- Login Form -->
+        <!-- Login Form အစ -->
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
@@ -158,7 +158,16 @@
                 >
             </div>
 
-            <!-- Login Button -->
+            <!-- 💡 ဘယ်ဘက်အောက်ခြေတွင် Forgot password? ပေါ်စေရန် -->
+            <div class="mb-3 text-start">
+                <a href="{{ route('password.request') }}" class="text-decoration-none small" style="color: #b04c71;">
+                    Forgot password?
+                </a>
+            </div>
+
+            
+
+            <!-- Login Button & Links -->
             <div class="d-grid gap-2">
 
                 <button type="submit" class="btn btn-pink">
@@ -183,6 +192,7 @@
             </div>
 
         </form>
+        <!-- Login Form အဆုံး -->
 
     </div>
 

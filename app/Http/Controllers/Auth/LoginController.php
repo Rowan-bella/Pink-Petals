@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
-
 use App\Models\User;
 use App\Models\Product;
 use App\Http\Controllers\Controller;
@@ -32,12 +30,21 @@ class LoginController extends Controller
             ])->onlyInput('email');
         }
 
-        // Login ဝင်ခြင်း
+        // 💡 1. Login မဝင်ခင် Request ထဲပါလာရင် Session ထဲ သိမ်းမည်
+        if ($request->filled('product_id')) {
+            session(['pending_product_id' => $request->input('product_id')]);
+        }
+        if ($request->filled('quantity')) {
+            session(['pending_quantity' => $request->input('quantity')]);
+        }
+
+        // Login ဝင်ခြင်း နှင့် Session Regenerate လုပ်ခြင်း
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
-        // 💡 URL (သို့) Request ထဲပါလာသော product_id ဖြင့် Cart ထဲသို့ ထည့်ခြင်း
-        $productId = $request->input('product_id') ?? $request->query('product_id');
+        // 💡 2. Request (သို့) Session ထဲမှ product_id နှင့် quantity ကို ရှာဖွေခြင်း
+        $productId = $request->input('product_id') ?? $request->query('product_id') ?? session('pending_product_id');
+        $quantity = $request->input('quantity') ?? $request->query('quantity') ?? session('pending_quantity') ?? 1;
 
         if ($productId) {
             $product = Product::find($productId);
@@ -46,21 +53,24 @@ class LoginController extends Controller
                 $cart = session()->get('cart', []);
                 
                 if (isset($cart[$productId])) {
-                    $cart[$productId]['quantity'] += 1;
+                    $cart[$productId]['quantity'] += (int) $quantity;
                 } else {
                     $cart[$productId] = [
                         'name' => $product->name,
                         'price' => $product->price,
                         'image' => $product->image,
-                        'quantity' => 1
+                        'quantity' => (int) $quantity
                     ];
                 }
                 session()->put('cart', $cart);
                 session()->save();
+
+                // 💡 3. ထည့်ပြီးပါက Session ထဲမှ ယာယီတန်ဖိုးများကို ရှင်းထုတ်မည်
+                session()->forget(['pending_product_id', 'pending_quantity']);
             }
         }
 
-        // 💡 Normal User ဖြစ်ပါက Cart Page သို့ မပို့ဘဲ မူလကြည့်နေကျ Products Page သို့ တန်းပြန်ပို့မည်
+        // 💡 Normal User ဖြစ်ပါက Cart Page သို့မဟုတ် Products Page သို့ ပို့မည်
         if (strtolower($user->role) === 'user') {
             return redirect()->intended(route('shop.products'));
         }

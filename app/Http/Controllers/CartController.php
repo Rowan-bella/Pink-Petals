@@ -1,23 +1,33 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use App\Models\Product;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    // Add to Cart လုပ်ဆောင်ချက်
-    
+    // Add to Cart (AJAX ဖြင့် လက်ခံရန်)
     public function addToCart(Request $request, $id)
     {
         $product = Product::findOrFail($id);
+        $quantity = (int) $request->input('quantity', 1);
+
         $cart = session()->get('cart', []);
-        
-        $requestedQuantity = (int) $request->input('quantity', 1);
+
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => $cart
+        // ]);
+
         $currentCartQuantity = isset($cart[$id]) ? $cart[$id]['quantity'] : 0;
-        $totalQuantity = $currentCartQuantity + $requestedQuantity;
+        $totalQuantity = $currentCartQuantity + $quantity;
 
         if ($totalQuantity > $product->stock) {
-            return back();
+            return response()->json([
+                'success' => false, 
+                'message' => 'လက်ကျန်ပမာဏထက် ကျော်လွန်နေပါသည်။'
+            ], 400);
         }
 
         $cart[$id] = [
@@ -30,15 +40,12 @@ class CartController extends Controller
         session()->put('cart', $cart);
         session()->save();
 
-        // 💡 Login ဝင်မထားပါက လက်ရှိ Products Page ရဲ့ URL ကို သိမ်းပြီး product_id ပါ တွဲပို့မည်
-        if (!auth()->check()) {
-            session(['url.intended' => url()->previous()]);
-            session()->save();
-            return redirect()->to(route('login') . '?product_id=' . $id);
-        }
-
-        return back();
+        return response()->json([
+            'success' => true, 
+            'message' => 'Cart ထဲသို့ ပစ္စည်းထည့်ပြီးပါပြီရှင်!'
+        ]);
     }
+
     // Cart စာမျက်နှာပြသရန်
     public function index()
     {
