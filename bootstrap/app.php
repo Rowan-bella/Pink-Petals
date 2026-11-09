@@ -1,9 +1,8 @@
 <?php
-
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Http\Middleware\RoleMiddleware; // 👈 ၁။ ဒီနေရာမှာ Middleware ကို import လုပ်ပါ
+use App\Http\Middleware\RoleMiddleware; 
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,7 +11,6 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // 👈 ၂။ ဤနေရာတွင် 'role' alias ကို ချိတ်ဆက်ပေးပါ
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);

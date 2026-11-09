@@ -92,8 +92,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Sidebar -->
     <div class="sidebar">
         <a href="#" class="sidebar-brand">
             🌸 <span>Pink Petals</span>
@@ -108,8 +106,6 @@
         </ul>
         <div class="sidebar-footer"></div>
     </div>
-
-    <!-- Main Content Area -->
     <div class="main-content">
         <div class="form-card">
             <h2 class="mb-2 fw-bold" style="color: var(--pink-primary);"> Edit User / Staff</h2>

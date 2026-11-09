@@ -14,8 +14,6 @@
             --sidebar-width: 250px;
         }
         body { background: var(--pink-bg); color: #563b47; font-family: system-ui, -apple-system, sans-serif; }
-        
-        /* Sidebar Layout */
         .sidebar {
             width: var(--sidebar-width);
             position: fixed;
@@ -62,8 +60,6 @@
             padding: 15px;
             border-top: 1px solid #f8d7e0;
         }
-
-        /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 25px;
@@ -75,8 +71,6 @@
             gap: 20px;
             margin-bottom: 25px;
         }
-        
-        /* Form Card */
         .form-card {
             background: white;
             border-radius: 16px;
@@ -100,8 +94,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Sidebar -->
     <div class="sidebar">
         <a href="#" class="sidebar-brand">
             🌸 <span>Pink Petals</span>
@@ -118,13 +110,7 @@
             
         </div>
     </div>
-
-    <!-- Main Content Area -->
     <div class="main-content">
-        <!-- Top Navbar -->
-        
-
-        <!-- Form Container -->
         <div class="form-card">
             <h2 class="mb-2 fw-bold" style="color: var(--pink-primary);">🌷 Edit Flower</h2>
             <p class="text-secondary mb-4">Update your flower details.</p>

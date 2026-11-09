@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Products | Pink Petals</title>
-    <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 💡 SweetAlert2 CSS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
@@ -32,8 +29,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-white shadow-sm py-3 mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold" href="{{ route('home') }}" style="color: var(--pink-primary);">
@@ -47,15 +42,13 @@
                     <span class="fw-semibold text-secondary small d-none d-md-inline">
                         <i class="fa-solid fa-user me-1" style="color: var(--pink-primary);"></i> မင်္ဂလာပါ၊ {{ auth()->user()->name }}
                     </span>
+                    
+                    {{-- Database (`cart_items`) မှ စုစုပေါင်းအရေအတွက်ကို ယူပြခြင်း --}}
                     @php
-                        $cartCount = 0;
-                        if(session('cart')) {
-                            foreach(session('cart') as $item) {
-                                $cartCount += $item['quantity'];
-                            }
-                        }
+                        $cartCount = auth()->check() ? \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity') : 0;
                     @endphp
-                    <a href="{{route('cart.index')}}" class="text-decoration-none text-dark fw-semibold position-relative me-2">
+
+                    <a href="{{ route('cart.index') }}" class="text-decoration-none text-dark fw-semibold position-relative me-2">
                         <i class="fa-solid fa-cart-shopping fs-5" style="color: var(--pink-primary);"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
                             {{ $cartCount }}
@@ -72,8 +65,6 @@
             </div>
         </div>
     </nav>
-
-    <!-- Main Content -->
     <div class="container py-4">
         
         @if(session('success'))
@@ -84,12 +75,8 @@
         @endif
 
         <div class="row g-4">
-            
-            <!-- ဘယ်ဘက်ခြမ်း Sidebar (Filter Form) -->
             <div class="col-lg-3 col-md-4">
                 <form action="{{ isset($selectedCategory) ? route('shop.category', $selectedCategory->id) : route('shop.products') }}" method="GET">
-                    
-                    <!-- 1. Categories Box -->
                     <h5 class="fw-bold mb-3" style="color: var(--pink-primary);">
                         <i class="fa-solid fa-seedling me-2"></i> Categories
                     </h5>
@@ -116,8 +103,6 @@
                             </a>
                         @endforeach
                     </ul>
-
-                    <!-- 2. Price Range Box -->
                     <h5 class="fw-bold mb-3" style="color: var(--pink-primary);">
                         <i class="fa-solid fa-tags me-2"></i> Price Range
                     </h5>
@@ -139,8 +124,6 @@
                             <label class="form-check-label small text-muted" for="price4">Over 80,000 MMK</label>
                         </div>
                     </div>
-
-                    <!-- 3. Availability Box -->
                     <h5 class="fw-bold mb-3" style="color: var(--pink-primary);">
                         <i class="fa-solid fa-box-open me-2"></i> Availability
                     </h5>
@@ -154,15 +137,11 @@
                             <label class="form-check-label small text-muted" for="outStock">Out of Stock</label>
                         </div>
                     </div>
-
-                    <!-- Apply Filter Button -->
                     <button type="submit" class="btn btn-pink w-100 rounded-pill py-2 fw-semibold shadow-sm">
                         Apply Filter
                     </button>
                 </form>
             </div>
-
-            <!-- ညာဘက်ခြမ်း Products Cards များ -->
             <div class="col-lg-9 col-md-8">
                 <h3 class="fw-bold mb-4" style="color: var(--pink-primary);">
                     {{ isset($selectedCategory) ? $selectedCategory->name : 'Beautiful Flowers for Every Moment' }}
@@ -209,7 +188,7 @@
                                     
                                     <div class="mt-auto">
                                         @if(data_get($product, 'stock', 0) > 0)
-                                            <!-- 💡 Login ဝင်ထားပါက SweetAlert ဖြင့် Add to Cart လုပ်ရန် Form -->
+                                            <!-- Add to Cart Form -->
                                             <form action="{{ route('cart.add', data_get($product, 'id')) }}" method="POST" onsubmit="addToCartWithSweetAlert(event, this, {{ data_get($product, 'stock') }})">
                                                 @csrf
                                                 <div class="d-flex align-items-center gap-1">
@@ -249,35 +228,46 @@
 
         </div>
     </div>
-
-    <!-- Bootstrap JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        const loginUrl = "{{ route('login') }}";
-        const isLoggedIn = @json(auth()->check());
+    const loginUrl = "{{ route('login') }}";
+    const isLoggedIn = @json(auth()->check());
 
-        // 💡 Login မဝင်ရသေးလျှင် product_id နှင့် quantity ပါ တွဲ၍ ပို့မည်
-        function showLoginAlert(productId) {
-            let qtyInput = document.getElementById('qty-' + productId);
-            let qty = qtyInput ? qtyInput.value : 1;
+    // 💡 Login မဝင်ရသေးသူများအတွက် SweetAlert2 ဖြင့် သတိပေးခြင်း
+    function showLoginAlert(productId) {
+        let qtyInput = document.getElementById('qty-' + productId);
+        let qty = qtyInput ? qtyInput.value : 1;
 
-            let confirmLogin = confirm("ကျေးဇူးပြု၍ Login အရင်ဝင်ပေးပါရှင်။");
-            if (confirmLogin) {
+        Swal.fire({
+            title: 'Login ဝင်ရန် လိုအပ်ပါသည်။',
+            text: "ကျေးဇူးပြု၍ Login အရင်ဝင်ပေးပါရှင်။",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#c75d83', // Pink Petals Primary Pink Color
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Login ဝင်မည်',
+            cancelButtonText: 'မလုပ်တော့ပါ'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Product ID နှင့် Quantity များကို ပူးတွဲပြီး Login Page သို့ ပို့မည်
                 window.location.href = loginUrl + "?product_id=" + productId + "&quantity=" + qty;
             }
-        }
+        });
+    }
 
-      function addToCartWithSweetAlert(event, form, maxStock) {
-        event.preventDefault(); // Form ပုံမှန် Submit ဖြစ်သွားမှုကို တားဆီးမည်
+    // 💡 Login ဝင်ပြီးသားသူများအတွက် AJAX ဖြင့် Cart ထဲသို့ ပစ္စည်းထည့်ခြင်း
+    function addToCartWithSweetAlert(event, form, maxStock) {
+        event.preventDefault();
 
         let qtyInput = form.querySelector('input[name="quantity"]');
         let selectedQty = parseInt(qtyInput.value);
 
+        // Stock လက်ကျန်ထက် ကျော်လွန်ခြင်း ရှိမရှိ စစ်ဆေးခြင်း
         if (selectedQty > maxStock) {
             Swal.fire({
                 title: 'ပမာဏကျော်လွန်နေပါသည်',
-                text: 'တောင်းဆိုထားသော ပမာဏသည် လက်ကျန် Stock (' + maxStock + ') ထက် ကျော်လွန်နေပါသည်။',
+                text: 'လက်ကျန် Stock (' + maxStock + ') ထက် ကျော်လွန်နေပါသည်။',
                 icon: 'warning',
                 confirmButtonText: 'OK'
             });
@@ -287,7 +277,6 @@
         let formData = new FormData(form);
         let actionUrl = form.action;
 
-        // AJAX ဖြင့် Server သို့ ပို့မည်
         fetch(actionUrl, {
             method: 'POST',
             body: formData,
@@ -296,29 +285,25 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = "{{ route('login') }}";
+                return;
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.success) {
-                // 💡 SweetAlert ဖြင့် အောင်မြင်ကြောင်းပြမည်
-                console.log(data);
+            if (data && data.success) {
                 Swal.fire({
                     title: 'အောင်မြင်ပါသည်!',
-                    text: 'Cart ထဲသို့ ပစ္စည်းထည့်ပြီးပါပြီရှင်။',
+                    text: data.message,
                     icon: 'success',
                     confirmButtonText: 'OK',
-                    allowOutsideClick: false // Alert ပြီးရင် ဘေးနားကို နှိပ်လို့မရဘဲ OK ကို သေချာနှိပ်ခိုင်းမည်
+                    allowOutsideClick: false
                 }).then((result) => {
-                    // 💡 User က OK ကို နှိပ်လိုက်မှသာ (isConfirmed ဖြစ်မှသာ) လက်ရှိစာမျက်နှာကို Refresh လုပ်မည်
                     if (result.isConfirmed) {
-                        location.reload(); 
+                        location.reload(); // အောင်မြင်ပါက Page ကို Refresh လုပ်မည်
                     }
-                });
-            } else {
-                Swal.fire({
-                    title: 'မှားယွင်းနေပါသည်',
-                    text: data.message || 'တောင်းဆိုမှု မအောင်မြင်ပါ။',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
                 });
             }
         })
@@ -326,7 +311,6 @@
             console.error('Error:', error);
         });
     }
-    
-    </script>
+</script>
 </body>
 </html>

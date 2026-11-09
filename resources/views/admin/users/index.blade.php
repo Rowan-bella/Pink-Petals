@@ -58,8 +58,6 @@
             background: var(--pink-primary);
             color: white;
         }
-
-        /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 25px;
@@ -72,8 +70,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Sidebar -->
     <div class="sidebar">
         <a href="#" class="sidebar-brand">
             🌸 <span>Pink Petals</span>
@@ -87,8 +83,6 @@
             <li><a href="{{ route('home') }}" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
         </ul>
     </div>
-
-    <!-- Main Content Area -->
     <div class="main-content">
         <div class="container-fluid px-4">
             <h1 class="mt-4 fw-bold mb-4" style="color: var(--pink-primary);">Users Management</h1>
@@ -96,7 +90,6 @@
             <div class="card mb-4">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold" style="color: var(--pink-primary);"><i class="fas fa-users me-2"></i> Staff & User List</h5>
-                    <!-- User အသစ်ဖန်တီးရန် ခလုတ် -->
                     <a href="{{ route('admin.users.create') }}" class="btn btn-sm text-white" style="background-color: var(--pink-primary);">+ Add New User</a>
                 </div>
                 <div class="card-body">
@@ -128,10 +121,8 @@
                                 </td>
                                 <td>{{ $user->created_at }}</td>
                                 <td>
-                                    <!-- Edit ခလုတ် -->
                                     <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-info text-white">Edit</a>
-                                    
-                                    <!-- Delete ခလုတ် -->
+
                                     <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')

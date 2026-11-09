@@ -79,8 +79,6 @@
 <body>
 
 <div class="container text-center py-5">
-
-    <!-- Brand Header -->
     <div class="mb-4">
         <h3 class="fw-bold mb-1" style="color: var(--pink-primary);">
             🌸 Pink Petals
@@ -92,8 +90,6 @@
             Fresh Flowers • Happy Moments • Always
         </p>
     </div>
-
-    <!-- Login Card -->
     <div class="login-card mx-auto text-start">
 
         <div class="text-center mb-4">
@@ -105,15 +101,11 @@
                 Please login to your account
             </p>
         </div>
-
-        <!-- Success Message -->
         @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
         @endif
-
-        <!-- Validation Errors -->
         @if($errors->any())
             <div class="alert alert-danger">
                 @foreach($errors->all() as $error)
@@ -121,18 +113,11 @@
                 @endforeach
             </div>
         @endif
-
-        <!-- Login Form အစ -->
         <form method="POST" action="{{ route('login') }}">
             @csrf
-
-            <!-- 💡 Login မဝင်ခင်က နှိပ်ထားသော Product ID ကို ဖမ်းယူပေးမည့် Hidden Input -->
             <input type="hidden" name="product_id" value="{{ request('product_id') }}">
-
-            <!-- Email -->
             <div class="mb-3 position-relative">
                 <i class="fa-regular fa-envelope input-group-icon"></i>
-
                 <input
                     type="text"
                     name="email"
@@ -141,11 +126,8 @@
                     value="{{ old('email') }}"
                     autocomplete="email"
                     inputmode="email"
-                    required
-                >
+                    required >
             </div>
-
-            <!-- Password -->
             <div class="mb-3 position-relative">
                 <i class="fa-solid fa-lock input-group-icon"></i>
 
@@ -154,51 +136,33 @@
                     name="password"
                     class="form-control form-control-custom"
                     placeholder="Password"
-                    required
-                >
+                    required >
             </div>
-
-            <!-- 💡 ဘယ်ဘက်အောက်ခြေတွင် Forgot password? ပေါ်စေရန် -->
             <div class="mb-3 text-start">
                 <a href="{{ route('password.request') }}" class="text-decoration-none small" style="color: #b04c71;">
                     Forgot password?
                 </a>
             </div>
-
-            
-
-            <!-- Login Button & Links -->
             <div class="d-grid gap-2">
-
                 <button type="submit" class="btn btn-pink">
                     Login &rarr;
                 </button>
-
                 <a
                     href="{{ route('register') }}"
                     class="btn btn-outline-secondary rounded-pill py-2 text-decoration-none text-center"
-                    style="border-color: #f8d7e0; color: #7a5c68;"
-                >
+                    style="border-color: #f8d7e0; color: #7a5c68;" >
                     Create an Account (Register)
                 </a>
-                
                 <a
                     href="{{ route('home') }}"
                     class="btn btn-outline-secondary rounded-pill py-2 text-decoration-none text-center"
-                    style="border-color: #f8d7e0; color: #7a5c68;"
-                >
+                    style="border-color: #f8d7e0; color: #7a5c68;" >
                     Home
                 </a>
             </div>
-
         </form>
-        <!-- Login Form အဆုံး -->
-
     </div>
-
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

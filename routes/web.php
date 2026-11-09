@@ -7,8 +7,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Auth\LoginController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
 Route::middleware(['auth', 'role:admin,manager,staff'])->group(function () {
     Route::get('/admin/categories', [CategoryController::class, 'index'])
         ->name('admin.categories');

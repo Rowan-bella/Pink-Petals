@@ -4,12 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Order Success | Pink Petals</title>
-    
-    <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         :root {
             --pink-primary: #c75d83;
@@ -112,33 +108,22 @@
 <body>
 
     <div class="success-card">
-        
-        <!-- Success Check Icon -->
         <div class="success-icon-box">
             <i class="fa-solid fa-check"></i>
         </div>
-
-        <!-- Title & Description -->
         <h3 class="fw-bold mb-2" style="color: var(--pink-primary);">
             Order တင်ခြင်း အောင်မြင်ပါသည်။
         </h3>
-        
         <p class="text-muted small mb-4 px-3" style="line-height: 1.6;">
             လူကြီးမင်း၏ Order ကို အောင်မြင်စွာ လက်ခံရရှိပြီး ဖြစ်ပါသည်။ ယုံကြည်စိတ်ချစွာ ဝယ်ယူအားပေးမှုအတွက် ကျေးဇူးတင်ရှိပါသည်။
         </p>
-
-        <!-- Order Summary Box -->
         <div class="info-box">
-            
-            <!-- Order ID -->
             <div class="info-row">
                 <span class="text-muted fw-semibold">
                     <i class="fa-solid fa-hashtag me-1" style="color: var(--pink-primary);"></i> Order ID
                 </span>
                 <span class="fw-bold text-dark">#{{ $order->id ?? '' }}</span>
             </div>
-
-            <!-- Total Price -->
             <div class="info-row">
                 <span class="text-muted fw-semibold">
                     <i class="fa-solid fa-money-bill-wave me-1" style="color: var(--pink-primary);"></i> စုစုပေါင်း ကျသင့်ငွေ
@@ -147,8 +132,6 @@
                     {{ number_format($order->total_price ?? 0) }} Ks
                 </span>
             </div>
-
-            <!-- Payment Method -->
             <div class="info-row">
                 <span class="text-muted fw-semibold">
                     <i class="fa-solid fa-wallet me-1" style="color: var(--pink-primary);"></i> ငွေချေစနစ်
@@ -169,8 +152,6 @@
                     @endif
                 </span>
             </div>
-
-            <!-- Payment Status -->
             <div class="info-row">
                 <span class="text-muted fw-semibold">
                     <i class="fa-solid fa-clock-rotate-left me-1" style="color: var(--pink-primary);"></i> Payment Status
@@ -183,17 +164,12 @@
                     @endif
                 </span>
             </div>
-
         </div>
-
-        <!-- Back to Products Button -->
         <a href="{{ route('shop.products') }}" class="btn-home">
             <i class="fa-solid fa-house me-2"></i> ပင်မစာမျက်နှာသို့ ပြန်သွားမည်
         </a>
 
     </div>
-
-    <!-- Bootstrap JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

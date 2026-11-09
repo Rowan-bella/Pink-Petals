@@ -63,7 +63,6 @@
             border-top: 1px solid #f8d7e0;
         }
 
-        /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 25px;
@@ -76,7 +75,6 @@
             margin-bottom: 25px;
         }
         
-        /* Detail Card */
         .detail-card {
             background: white;
             border-radius: 16px;
@@ -92,8 +90,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Sidebar -->
     <div class="sidebar">
         <a href="#" class="sidebar-brand">
             🌸 <span>Pink Petals</span>
@@ -109,13 +105,7 @@
         </ul>
         
     </div>
-
-    <!-- Main Content Area -->
     <div class="main-content">
-        <!-- Top Navbar -->
-        
-
-        <!-- Detail Card Container -->
         <div class="detail-card">
             <div class="row g-4 align-items-center">
                 <div class="col-md-6">

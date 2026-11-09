@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Register | Pink Petals</title>
-    <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -67,8 +66,6 @@
         <div class="register-card mx-auto text-start">
             <form method="POST" action="{{ route('register') }}">
                 @csrf
-
-                <!-- Name Field -->
                 <div class="mb-3">
                     <label class="form-label small text-muted">Full Name</label>
                     <input type="text" name="name" value="{{ old('name') }}" class="form-control form-control-custom" required>
@@ -76,8 +73,6 @@
                         <div class="text-danger small mt-1">{{ $message }}</div>
                     @enderror
                 </div>
-
-                <!-- Email Field -->
                 <div class="mb-3">
                     <label class="form-label small text-muted">Email Address</label>
                     <input type="email" name="email" value="{{ old('email') }}" class="form-control form-control-custom" required>
@@ -85,8 +80,6 @@
                         <div class="text-danger small mt-1">{{ $message }}</div>
                     @enderror
                 </div>
-
-                <!-- Password Field -->
                 <div class="mb-3">
                     <label class="form-label small text-muted">Password (at least 8 characters)</label>
                     <input type="password" name="password" class="form-control form-control-custom" required>
@@ -94,25 +87,19 @@
                         <div class="text-danger small mt-1">{{ $message }}</div>
                     @enderror
                 </div>
-
-                <!-- Confirm Password Field -->
                 <div class="mb-4">
                     <label class="form-label small text-muted">Confirm Password</label>
                     <input type="password" name="password_confirmation" class="form-control form-control-custom" required>
                 </div>
-
-                <!-- Submit Button -->
                 <button type="submit" class="btn btn-pink mb-3">Register &rarr;</button>
                 <div class="d-grid gap-2">
                  <a
                     href="{{ route('home') }}"
                     class="btn btn-outline-secondary rounded-pill py-2 text-decoration-none text-center"
-                    style="border-color: #f8d7e0; color: #7a5c68;"
-                >
+                    style="border-color: #f8d7e0; color: #7a5c68;" >
                     Home
                 </a>
                 </div><br>
-                <!-- Login Redirect Link -->
                 <div class="text-center small">
                     <span class="text-muted">Already have an account?</span> 
                     <a href="{{ route('login') }}" class="text-decoration-none fw-bold" style="color: var(--pink-primary);">Login here</a>
@@ -120,8 +107,6 @@
             </form>
         </div>
     </div>
-
-    <!-- Bootstrap JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

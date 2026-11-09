@@ -34,7 +34,6 @@
 
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
             <div class="col-md-2 p-4 sidebar bg-white border-end">
                 <h5 class="fw-bold mb-4" style="color: var(--pink-primary);">🌸 Pink Petals</h5>
                 <ul class="nav flex-column gap-2">
@@ -73,17 +72,13 @@
                     </li>
                 </ul>
             </div>
-
-            <!-- Main Content -->
             <div class="col-md-10 p-5">
                 <h3 class="fw-bold mb-4 text-dark">Order Management</h3>
-
                 <div class="card table-card p-4">
                     <div class="d-flex align-items-center mb-3 gap-2">
                         <i class="fa-solid fa-list-check" style="color: var(--pink-primary);"></i>
                         <h6 class="fw-bold mb-0">All Customer Orders ({{ $orders->total() }})</h6>
                     </div>
-
                     <div class="table-responsive">
                         <table class="table align-middle">
                             <thead class="table-light">

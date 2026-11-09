@@ -14,8 +14,6 @@
             --sidebar-width: 250px;
         }
         body { background: var(--pink-bg); color: #563b47; font-family: system-ui, -apple-system, sans-serif; }
-        
-        /* Sidebar Layout */
         .sidebar {
             width: var(--sidebar-width);
             position: fixed;
@@ -58,14 +56,10 @@
             background: var(--pink-primary);
             color: white;
         }
-
-        /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 30px;
         }
-
-        /* Product Grid Card Styling */
         .product-card {
             background: white;
             border-radius: 16px;
@@ -90,8 +84,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Sidebar -->
     <div class="sidebar">
         <a href="#" class="sidebar-brand">
             🌸 <span>Pink Petals</span>
@@ -106,8 +98,6 @@
 
         </ul>
     </div>
-
-    <!-- Main Content Area -->
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold" style="color: var(--pink-primary);">🌸 {{ $category->name }} Collection</h2>
@@ -115,8 +105,6 @@
                 <i class="fa-solid fa-arrow-left me-1"></i> Back to Categories
             </a>
         </div>
-
-        <!-- တစ်တန်းကို ၄ ခုပေါ်စေရန် col-md-3 ကို အသုံးပြုထားပါသည် -->
         <div class="row g-4">
             @forelse($products as $product)
                 <div class="col-md-3">
@@ -150,8 +138,6 @@
                                 {{ $product->description ?: 'A beautiful flower arrangement.' }}
                             </p>
                         </div>
-
-                        <!-- အောက်ခြေခလုတ်များ (Edit နှင့် Delete) -->
                         <div class="d-flex gap-2 pt-2 border-top">
                             <a href="{{ route('products.edit', $product->id) }}" class="btn btn-pink flex-grow-1 py-1 text-center">
                                 <i class="fa-solid fa-pen me-1"></i> Edit

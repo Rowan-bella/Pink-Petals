@@ -9,19 +9,12 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    // ဖိုင်အပေါ်ဆုံးတွင် Carbon ကို ခေါ်ထားရန်
-
-// ...
-
     public function dashboard()
     {
         $totalProducts = Product::count(); 
         $totalStock = Product::sum('stock'); 
         $totalRevenue = Order::whereIn('status', ['delivered', 'approved'])->sum('total_price');
-
-        // 💡 ယခုအပတ်၏ တနင်္လာနေ့မှ တနင်္ဂနွေနေ့အထိ တစ်ရက်ချင်းစီ၏ ရောင်းရငွေကို တိကျစွာ တွက်ချက်ခြင်း
         $startOfWeek = now()->startOfWeek(Carbon::MONDAY);
-
         $salesData = [
             Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(0))->sum('total_price'), // Mon
             Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(1))->sum('total_price'), // Tue
@@ -31,7 +24,6 @@ class ProductController extends Controller
             Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(5))->sum('total_price'), // Sat
             Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(6))->sum('total_price'), // Sun
         ];
-
         $categories = Category::withCount('products')->get();
         $categoryNames = $categories->pluck('name');
         $categoryCounts = $categories->pluck('products_count');
@@ -52,24 +44,18 @@ class ProductController extends Controller
 
         return view('admin.categories.index', compact('categories'));
     }
-
-    // Read: ပန်းစာရင်းကြည့်ရန်
     public function index()
     {
         $products = Product::with('category')->latest()->get();
 
         return view('products.index', compact('products'));
     }
-
-    // Create form: ပန်းအသစ်ထည့်ရန် Form
     public function create()
     {
         $categories = Category::orderBy('name')->get();
 
         return view('products.create', compact('categories'));
     }
-
-    // Create: ပန်းအသစ်ကို Database ထဲသိမ်းရန်
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -92,24 +78,18 @@ class ProductController extends Controller
             ->route('products.index')
             ->with('success', 'ပန်းပစ္စည်းအသစ် ထည့်သွင်းပြီးပါပြီ။');
     }
-
-    // Read: ပန်းတစ်မျိုးချင်းစီ၏ အသေးစိတ်ကြည့်ရန်
     public function show(Product $product)
     {
         $product->load('category');
 
         return view('products.show', compact('product'));
     }
-
-    // Update form: ပန်းအချက်အလက်ပြင်ရန် Form
     public function edit(Product $product)
     {
         $categories = Category::orderBy('name')->get();
 
         return view('products.edit', compact('product', 'categories'));
     }
-
-    // Update: Database ထဲက ပန်းအချက်အလက် ပြင်ရန်
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
@@ -136,8 +116,6 @@ class ProductController extends Controller
             ->route('products.index')
             ->with('success', 'ပန်းအချက်အလက် ပြင်ဆင်ပြီးပါပြီ။');
     }
-
-    // Delete: ပန်းပစ္စည်းဖျက်ရန်
     public function destroy(Product $product)
     {
         if ($product->image) {

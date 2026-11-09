@@ -1,96 +1,93 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Models\Product;
+use App\Models\CartItem;
 use Illuminate\Http\Request;
-
 class CartController extends Controller
 {
-    // Add to Cart (AJAX ဖြင့် လက်ခံရန်)
     public function addToCart(Request $request, $id)
     {
+        if (!auth()->check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ကျေးဇူးပြု၍ Login အရင်ဝင်ပေးပါရှင်။'
+            ], 401);
+        }
+
         $product = Product::findOrFail($id);
         $quantity = (int) $request->input('quantity', 1);
+        if ($quantity < 1) {
+            $quantity = 1;
+        }
 
-        $cart = session()->get('cart', []);
+        $userId = auth()->id();
 
-        // return response()->json([
-        //     'success' => true,
-        //     'message' => $cart
-        // ]);
+        $cartItem = CartItem::where('user_id', $userId)
+                            ->where('product_id', $id)
+                            ->first();
+        $targetQty = $cartItem ? $quantity : $quantity; 
 
-        $currentCartQuantity = isset($cart[$id]) ? $cart[$id]['quantity'] : 0;
-        $totalQuantity = $currentCartQuantity + $quantity;
-
-        if ($totalQuantity > $product->stock) {
+        if ($targetQty > $product->stock) {
             return response()->json([
                 'success' => false, 
-                'message' => 'လက်ကျန်ပမာဏထက် ကျော်လွန်နေပါသည်။'
+                'message' => 'တောင်းဆိုထားသော ပမာဏသည် လက်ကျန် Stock (' . $product->stock . ') ထက် ကျော်လွန်နေပါသည်။'
             ], 400);
         }
 
-        $cart[$id] = [
-            'name' => $product->name,
-            'price' => $product->price,
-            'image' => $product->image,
-            'quantity' => $totalQuantity
-        ];
+        if ($cartItem) {
+            $cartItem->update(['quantity' => $quantity]);
+        } else {
+            CartItem::create([
+                'user_id' => $userId,
+                'product_id' => $id,
+                'quantity' => $quantity
+            ]);
+        }
 
-        session()->put('cart', $cart);
-        session()->save();
+        $newCartCount = CartItem::where('user_id', $userId)->sum('quantity');
 
         return response()->json([
             'success' => true, 
-            'message' => 'Cart ထဲသို့ ပစ္စည်းထည့်ပြီးပါပြီရှင်!'
+            'message' => 'Cart ထဲသို့ ပစ္စည်းထည့်ပြီးပါပြီရှင်!',
+            'cartCount' => $newCartCount
         ]);
     }
 
-    // Cart စာမျက်နှာပြသရန်
     public function index()
     {
-        $cart = session()->get('cart', []);
-        return view('cart.index', compact('cart'));
+        $cartItems = CartItem::with('product')->where('user_id', auth()->id())->get();
+        return view('cart.index', compact('cartItems'));
     }
 
-    // Quantity တိုး/လျော့ လုပ်ခြင်း (+ / -)
     public function update(Request $request, $id)
     {
-        $cart = session()->get('cart', []);
-        
-        if(isset($cart[$id])) {
-            if($request->change === 'increase') {
-                $cart[$id]['quantity']++;
-            } elseif($request->change === 'decrease') {
-                $cart[$id]['quantity']--;
-                if($cart[$id]['quantity'] <= 0) {
-                    unset($cart[$id]);
+        $cartItem = CartItem::where('user_id', auth()->id())->where('id', $id)->first();
+
+        if ($cartItem) {
+            if ($request->change === 'increase') {
+                if ($cartItem->quantity < $cartItem->product->stock) {
+                    $cartItem->increment('quantity');
+                }
+            } elseif ($request->change === 'decrease') {
+                $cartItem->decrement('quantity');
+                if ($cartItem->quantity <= 0) {
+                    $cartItem->delete();
                 }
             }
-            session()->put('cart', $cart);
-            session()->save();
         }
-        
+
         return back();
     }
 
-    // ပစ္စည်းတစ်ခုချင်း ဖျက်ခြင်း
     public function remove($id)
     {
-        $cart = session()->get('cart', []);
-        if(isset($cart[$id])) {
-            unset($cart[$id]);
-            session()->put('cart', $cart);
-            session()->save();
-        }
+        CartItem::where('user_id', auth()->id())->where('id', $id)->delete();
         return back();
     }
 
-    // အားလုံးကို ဖျက်ခြင်း (Clear All)
     public function clear()
     {
-        session()->forget('cart');
-        session()->save();
+        CartItem::where('user_id', auth()->id())->delete();
         return back();
     }
 }

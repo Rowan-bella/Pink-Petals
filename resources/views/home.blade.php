@@ -4,12 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pink Petals | Flower Shop</title>
-
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -85,8 +81,6 @@
             background: var(--dark-pink);
             color: white;
         }
-
-        /* Category Section */
         .category-card {
             background: white;
             border-radius: 15px;
@@ -105,8 +99,6 @@
             height: 160px;
             object-fit: cover;
         }
-
-        /* Product Card */
         .product-card {
             background: white;
             border-radius: 15px;
@@ -124,15 +116,11 @@
             object-fit: cover;
             background: var(--light-pink);
         }
-
-        /* Gift Banner */
         .gift-banner {
             background: linear-gradient(100deg, #f9dce5, #fff0f2);
             border-radius: 20px;
             overflow: hidden;
         }
-
-        /* Services */
         .service-box {
             text-align: center;
             padding: 15px;
@@ -142,8 +130,6 @@
             color: var(--pink);
             margin-bottom: 8px;
         }
-
-        /* Footer */
         footer {
             background: #633448;
             color: white;
@@ -162,8 +148,6 @@
 </head>
 
 <body>
-
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg sticky-top shadow-sm">
         <div class="container">
             <a class="brand" href="{{ route('home') }}">
@@ -208,7 +192,6 @@
             </div>
         </div>
     </nav>
-    <!-- Hero Section -->
     <section class="hero">
         <div class="container">
             <div class="row align-items-center">
@@ -231,8 +214,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Shop By Category Section -->
     <section class="py-5">
         <div class="container">
             <div class="text-center mb-5">
@@ -260,7 +241,6 @@
             </div>
         </div>
     </section>
-<!-- Best Sellers Section -->
     <section class="py-5 bg-white">
         <div class="container">
             <div class="text-center mb-5">
@@ -273,32 +253,22 @@
                 @foreach($products as $product)
                     <div class="col-6 col-lg-3">
                         <div class="product-card p-3 shadow-sm rounded-4 border d-flex flex-column h-100 bg-white">
-                            <!-- Product Image -->
+                        
                             <img src="{{ asset('storage/' . $product->image) }}" class="product-image rounded-3 mb-3" style="width: 100%; height: 180px; object-fit: cover;" alt="{{ $product->name }}">
-                            
-                            <!-- Product Name -->
-                            <h6 class="fw-bold mb-1 text-dark">{{ $product->name }}</h6>
-                            
-                            <!-- Category Name (ဟိုဘက် Page လိုမျိုး Category ပါ ပြလိုပါက) -->
-                            <small class="text-muted mb-2">{{ $product->category->name ?? 'Flower Gifts' }}</small>
 
-                            <!-- Stock Badge -->
+                            <h6 class="fw-bold mb-1 text-dark">{{ $product->name }}</h6>
+                            <small class="text-muted mb-2">{{ $product->category->name ?? 'Flower Gifts' }}</small>
                             <div class="mb-2">
                                 <span class="badge bg-success bg-opacity-10 text-success px-2 py-1" style="font-size: 0.75rem;">
                                     Stock: {{ $product->stock }}
                                 </span>
                             </div>
-
-                            <!-- Description (Str::limit ကို ဖြုတ်၍ အပြည့်အစုံ ပြသရန်) -->
                             <p class="text-muted small mb-3" style="font-size: 0.8rem; line-height: 1.4;">
                                {{ $product->description }}
                             </p>                            
-                            <!-- Price -->
                             <div class="fw-bold mb-3 fs-5" style="color: var(--pink);">
                                 {{ number_format($product->price) }} MMK
                             </div>
-
-                            <!-- Quantity Selector & Add to Cart Form (ဟိုဘက် Page ပုံစံအတိုင်း) -->
                             <div class="mt-auto">
                                 <form action="{{ route('cart.add', $product->id) }}" method="POST">
                                     @csrf
@@ -321,7 +291,6 @@
             </div>
         </div>
     </section>
-    <!-- Services Section -->
     <section class="py-4 bg-light border-top border-bottom">
         <div class="container">
             <div class="row text-center">
@@ -348,8 +317,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Footer -->
     <footer>
         <div class="container text-center">
             <h4 class="brand text-white mb-3">🌸 Pink Petals</h4>
@@ -367,8 +334,6 @@
             <small class="text-white-50">&copy; 2026 Pink Petals. All rights reserved. Flowers make life more beautiful.</small>
         </div>
     </footer>
-
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

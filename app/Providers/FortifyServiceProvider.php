@@ -1,11 +1,10 @@
 <?php
-
 namespace App\Providers;
-
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Models\CartItem; 
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -16,12 +15,11 @@ use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\LogoutResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Fortify;
-
 class FortifyServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+    
     }
 
     public function boot(): void
@@ -47,33 +45,32 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetPasswordView(function ($request) {
             return view('auth.reset-password', ['request' => $request]);
         });
-        
-        // 💡 Login ဝင်လိုက်တာနဲ့ URL မှ product_id ကို ဖမ်းပြီး Cart ထဲ ထည့်မည့် LoginResponse
         $this->app->singleton(LoginResponse::class, function () {
             return new class implements LoginResponse {
                 public function toResponse($request)
                 {
                     $productId = $request->input('product_id');
-                    $quantity = $request->input('quantity', 1);
-
-                    if ($productId) {
+                    $quantity = (int) $request->input('quantity', 1);
+                    if ($productId && auth()->check()) {
                         $product = \App\Models\Product::find($productId);
-
                         if ($product) {
-                            $cart = session()->get('cart', []);
-                            
-                            if (isset($cart[$productId])) {
-                                $cart[$productId]['quantity'] += (int) $quantity;
-                            } else {
-                                $cart[$productId] = [
-                                    'name' => $product->name,
-                                    'price' => $product->price,
-                                    'image' => $product->image,
-                                    'quantity' => (int) $quantity
-                                ];
+                            $userId = auth()->id();
+                            $cartItem = CartItem::where('user_id', $userId)
+                                                ->where('product_id', $productId)
+                                                ->first();
+                            $totalQty = $cartItem ? ($cartItem->quantity + $quantity) : $quantity;
+
+                            if ($totalQty <= $product->stock) {
+                                if ($cartItem) {
+                                    $cartItem->update(['quantity' => $totalQty]);
+                                } else {
+                                    CartItem::create([
+                                        'user_id' => $userId,
+                                        'product_id' => $productId,
+                                        'quantity' => $quantity
+                                    ]);
+                                }
                             }
-                            session()->put('cart', $cart);
-                            session()->save();
                         }
                     }
 
@@ -91,11 +88,14 @@ class FortifyServiceProvider extends ServiceProvider
                 }
             };
         });
-
         $this->app->singleton(LogoutResponse::class, function () {
             return new class implements LogoutResponse {
                 public function toResponse($request)
                 {
+                    if (auth()->check()) {
+                        CartItem::where('user_id', auth()->id())->delete();
+                    }
+
                     auth()->guard('web')->logout();
                     $request->session()->invalidate();
                     $request->session()->regenerateToken();

@@ -88,8 +88,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Sidebar -->
     <div class="sidebar">
         <a href="#" class="sidebar-brand">🌸 <span>Pink Petals</span></a>
         <ul class="sidebar-menu">
@@ -101,36 +99,27 @@
             <li><a href="{{ route('home')}}" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
         </ul>
     </div>
-
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Success Alert -->
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-
         <div class="page-header d-flex justify-content-between align-items-center">
             <div>
                 <h2 class="fw-bold" style="color: var(--pink-primary);">Categories Management</h2>
                 <p class="text-muted mb-0">Manage your flower categories</p>
             </div>
-            <!-- Category အသစ်ထည့်ရန် Trigger Button -->
             <button type="button" class="btn btn-pink px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                 <i class="fa-solid fa-plus me-1"></i> Add New Category
             </button>
         </div>
-
-        <!-- Categories List Grid -->
         <div class="row g-4">
             @forelse($categories as $category)
             <div class="col-md-4">
                 <div class="category-card">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        
-                           
+                    <div class="d-flex align-items-center gap-3 mb-3"> 
                         @if($category->image)
         <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" class="category-img">
     @else
@@ -143,20 +132,15 @@
                     </div>
 
                     <p class="text-muted small mb-3">{{ $category->description ?? 'No description provided.' }}</p>
-
-                    <!-- CRUD Actions (View Products, Edit, Delete) -->
                     <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                         <a href="{{ route('admin.category.products', $category->id) }}" class="btn btn-sm btn-outline-secondary">
                             <i class="fa-solid fa-eye me-1"></i> View Products
                         </a>
 
                         <div class="d-flex gap-1">
-                            <!-- Edit Button -->
                             <button type="button" class="btn btn-sm btn-pink" data-bs-toggle="modal" data-bs-target="#editCategoryModal{{ $category->id }}">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-
-                            <!-- Delete Form -->
                             <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('ဒီ Category ကို ဖျက်မှာ သေချာပါသလား?');">
                                 @csrf
                                 @method('DELETE')
@@ -168,8 +152,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Edit Category Modal တစ်ခုချင်းစီအတွက် -->
             <div class="modal fade" id="editCategoryModal{{ $category->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog">
                     <form action="{{ route('admin.categories.update', $category->id) }}" method="POST" enctype="multipart/form-data">
@@ -189,7 +171,6 @@
                                     <label class="form-label">Description</label>
                                     <textarea name="description" class="form-control" rows="3">{{ $category->description }}</textarea>
                                 </div>
-                                <!-- Edit Image Input -->
                                 <div class="mb-3">
                                     <label class="form-label">Category Image</label>
                                     <input type="file" name="image" class="form-control">
@@ -215,8 +196,6 @@
             @endforelse
         </div>
     </div>
-
-    <!-- Add New Category Modal -->
     <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
@@ -235,7 +214,6 @@
                             <label class="form-label">Description</label>
                             <textarea name="description" class="form-control" rows="3" placeholder="Enter description"></textarea>
                         </div>
-                        <!-- Add Image Input -->
                         <div class="mb-3">
                             <label class="form-label">Category Image</label>
                             <input type="file" name="image" class="form-control">

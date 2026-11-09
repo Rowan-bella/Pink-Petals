@@ -62,8 +62,6 @@
             padding: 15px;
             border-top: 1px solid #f8d7e0;
         }
-
-        /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 25px;
@@ -76,7 +74,6 @@
             margin-bottom: 25px;
         }
         
-        /* Form Card */
         .form-card {
             background: white;
             border-radius: 16px;
@@ -98,8 +95,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Sidebar -->
     <div class="sidebar">
         <a href="#" class="sidebar-brand">
             🌸 <span>Pink Petals</span>
@@ -114,12 +109,7 @@
         </ul>
         
     </div>
-
-    <!-- Main Content Area -->
     <div class="main-content">
-        
-
-        <!-- Form Container -->
         <div class="form-card mx-auto">
             <h3 class="fw-bold mb-1" style="color: var(--pink-primary);">🌸 Add a New Flower</h3>
             <p class="text-muted mb-4">Add a beautiful bloom to your collection.</p>

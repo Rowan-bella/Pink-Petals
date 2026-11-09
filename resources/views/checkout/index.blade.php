@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Checkout | Pink Petals</title>
-    <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -31,8 +29,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-white shadow-sm py-3 mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold" href="{{ route('home') }}" style="color: var(--pink-primary);">
@@ -45,10 +41,7 @@
             </div>
         </div>
     </nav>
-
-    <!-- Main Content -->
     <div class="container py-4">
-        <!-- Pink Petals Theme Header -->
         <div class="d-flex align-items-center justify-content-between mb-4 p-4 rounded-4 text-white shadow-sm" style="background-color: var(--pink-primary);">
             <div class="d-flex align-items-center gap-3">
                 <i class="fa-solid fa-bag-shopping fs-3"></i>
@@ -62,18 +55,14 @@
             </div>
         </div>
 
-        <!-- 💡 Form action ကို processShipping route သို့ ချိတ်ဆက်ပေးခြင်း -->
         <form action="{{ route('checkout.shipping.process') }}" method="POST">
             @csrf
             <div class="row g-4">
-                <!-- Left Side: Delivery Information Form -->
                 <div class="col-lg-7">
                     <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
                         <h5 class="fw-bold mb-4" style="color: var(--pink-primary);">
                             <i class="fa-solid fa-truck-fast me-2"></i> Delivery Information
                         </h5>
-
-                        <!-- Phone Number -->
                         <div class="mb-3">
                             <label class="form-label small fw-semibold text-muted">Phone Number</label>
                             <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone', Auth::user()->phone ?? '') }}" placeholder="" required>
@@ -81,8 +70,6 @@
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        <!-- Select Delivery Area -->
                         <div class="mb-3">
                             <label class="form-label small fw-semibold text-muted">Select Delivery Area </label>
                             <select name="delivery_area" id="deliveryArea" class="form-select @error('delivery_area') is-invalid @enderror" required onchange="updateTotal()">
@@ -94,8 +81,6 @@
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        <!-- Delivery Address -->
                         <div class="mb-3">
                             <label class="form-label small fw-semibold text-muted">Delivery Address </label>
                             <textarea name="address" class="form-control @error('address') is-invalid @enderror" rows="4" placeholder="" required>{{ old('address') }}</textarea>
@@ -105,8 +90,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Right Side: Order Summary -->
                 <div class="col-lg-5">
                     <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
                         <h5 class="fw-bold mb-3" style="color: var(--pink-primary);">
@@ -114,16 +97,16 @@
                         </h5>
                         
                         @php $subtotal = 0; @endphp
-                        @if(session('cart') && count(session('cart')) > 0)
+                        @if(isset($cartItems) && $cartItems->count() > 0)
                             <div class="mb-3">
-                                @foreach(session('cart') as $id => $item)
+                                @foreach($cartItems as $item)
                                     @php 
-                                        $itemTotal = $item['price'] * $item['quantity'];
+                                        $itemTotal = $item->product->price * $item->quantity;
                                         $subtotal += $itemTotal;
                                     @endphp
                                     <div class="d-flex justify-content-between align-items-center mb-2 small">
-                                        <span class="text-muted text-truncate" style="max-width: 180px;" title="{{ $item['name'] }}">
-                                            {{ $item['name'] }} (x{{ $item['quantity'] }})
+                                        <span class="text-muted text-truncate" style="max-width: 180px;" title="{{ $item->product->name }}">
+                                            {{ $item->product->name }} (x{{ $item->quantity }})
                                         </span>
                                         <span class="fw-semibold">{{ number_format($itemTotal) }} MMK</span>
                                     </div>
@@ -135,7 +118,7 @@
                         
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">Subtotal</span>
-                            <span class="fw-semibold"><span id="subtotalValue">{{ $subtotal ?? 0 }}</span> MMK</span>
+                            <span class="fw-semibold"><span id="subtotalValue">{{ $subtotal }}</span> MMK</span>
                         </div>
 
                         <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
@@ -147,13 +130,9 @@
                             <span class="fw-bold fs-5 text-dark">Grand Total</span>
                             <span class="fw-bold fs-5" style="color: var(--pink-primary);"><span id="grandTotal">0</span> MMK</span>
                         </div>
-
-                        <!-- Proceed to Payment Button -->
                         <button type="submit" class="btn btn-pink w-100 rounded-pill py-2 fw-semibold mb-2 shadow-sm">
                             <i class="fa-solid fa-circle-chevron-right me-1"></i> Proceed to Payment
                         </button>
-
-                        <!-- Back to Cart Button -->
                         <a href="{{ route('cart.index') }}" class="btn btn-outline-secondary w-100 rounded-pill py-2 small fw-semibold">
                             <i class="fa-solid fa-arrow-left me-1"></i> Back to Cart
                         </a>
@@ -162,11 +141,7 @@
             </div>
         </form>
     </div>
-
-    <!-- Bootstrap JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Delivery Fee Dynamic Calculation Script -->
     <script>
         function updateTotal() {
             let subtotal = parseFloat(document.getElementById('subtotalValue').innerText.replace(/,/g, '')) || 0;
@@ -177,8 +152,6 @@
             document.getElementById('deliveryFee').innerText = deliveryFee.toLocaleString();
             document.getElementById('grandTotal').innerText = grandTotal.toLocaleString();
         }
-
-        // Page load တွင် ပထမအကြိမ် တွက်ချက်ရန်
         window.onload = updateTotal;
     </script>
 </body>

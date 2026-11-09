@@ -64,8 +64,6 @@
             background: var(--pink-primary);
             color: white;
         }
-
-        /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 25px;
@@ -116,8 +114,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Sidebar -->
     <div class="sidebar">
         <a href="#" class="sidebar-brand">
             🌸 <span>Pink Petals</span>
@@ -132,8 +128,6 @@
 
         </ul>
     </div>
-
-    <!-- Main Content Area -->
     <div class="main-content">
         <div class="content-card">
             @if(session('success'))
@@ -171,8 +165,6 @@
                     </a>
                 </div>
             </div>
-
-            <!-- Products Table (Name, Category, Description, Price ပါဝင်ပြီး Rating မပါပါ) -->
             <div class="table-responsive">
                 <table class="table table-custom align-middle">
                     <thead>
@@ -208,15 +200,12 @@
                                 </td>
                                 <td class="fw-semibold text-nowrap">{{ number_format($product->price) }} MMK</td>
                                 <td class="text-center text-nowrap">
-                                    <!-- View Button -->
                                     <a href="{{ route('products.show', $product->id) }}" class="action-btn btn-view" title="View">
                                         <i class="fa-regular fa-eye"></i>
                                     </a>
-                                    <!-- Edit Button -->
                                     <a href="{{ route('products.edit', $product->id) }}" class="action-btn btn-edit" title="Edit">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
-                                    <!-- Delete Form -->
                                     <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline" onsubmit="return confirm('ဒီပစ္စည်းကို ဖျက်မှာ သေချာပါသလား?');">
                                         @csrf
                                         @method('DELETE')

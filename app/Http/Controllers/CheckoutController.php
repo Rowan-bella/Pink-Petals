@@ -1,12 +1,11 @@
-<?php 
-
+<?php
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\CartItem; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -14,20 +13,24 @@ class CheckoutController extends Controller
 {
     public function index()
     {
-        $cart = session()->get('cart', []);
-        
+        $cartItems = CartItem::with('product')
+                             ->where('user_id', Auth::id())
+                             ->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('shop.products')->with('error', 'သင့် Cart ထဲတွင် ပစ္စည်းများ မရှိသေးပါရှင်။');
+        }
         $subtotal = 0;
-        foreach($cart as $item) {
-            $subtotal += $item['price'] * $item['quantity'];
+        foreach($cartItems as $item) {
+            $subtotal += $item->product->price * $item->quantity;
         }
 
         $deliveryFee = 2000; 
         $grandTotal = $subtotal + $deliveryFee;
 
-        return view('checkout.index', compact('cart', 'subtotal', 'deliveryFee', 'grandTotal'));
+        return view('checkout.index', compact('cartItems', 'subtotal', 'deliveryFee', 'grandTotal'));
     }
 
-    // ၁။ Shipping Form မှ data များကို လက်ခံပြီး Session တွင်သိမ်းကာ Payment Page သို့ Redirect မည် (POST)
     public function processShipping(Request $request)
     {
         $request->validate([
@@ -36,10 +39,13 @@ class CheckoutController extends Controller
             'address' => 'required|string',
         ]);
 
-        $cart = session('cart', []);
+        $cartItems = CartItem::with('product')
+                             ->where('user_id', Auth::id())
+                             ->get();
+
         $subtotal = 0;
-        foreach($cart as $item) {
-            $subtotal += $item['price'] * $item['quantity'];
+        foreach($cartItems as $item) {
+            $subtotal += $item->product->price * $item->quantity;
         }
 
         $deliveryFee = (float) $request->delivery_area;
@@ -57,8 +63,6 @@ class CheckoutController extends Controller
 
         return redirect()->route('checkout.payment');
     }
-
-    // ၂။ Payment Page ကို (GET method ဖြင့်) ပြသပေးမည် (Refresh လုပ်လျှင် Error မတက်တော့ပါ)
     public function showPaymentForm()
     {
         $checkoutData = session('checkout_data');
@@ -73,7 +77,6 @@ class CheckoutController extends Controller
 
     public function store(Request $request)
     {
-        // 💡 KBZPay သို့မဟုတ် WavePay ရွေးလျှင် payment_slip ကို မဖြစ်မနေ တင်ရမည်ဟု စစ်ဆေးခြင်း
         $request->validate([
             'payment_method' => 'required|string',
             'payment_slip' => 'required_if:payment_method,kbzpay,wavepay|image|mimes:jpeg,png,jpg|max:2048',
@@ -85,15 +88,17 @@ class CheckoutController extends Controller
         ]);
 
         $checkoutData = session('checkout_data');
-        $cart = session('cart', []);
+    
+        $cartItems = CartItem::with('product')
+                             ->where('user_id', Auth::id())
+                             ->get();
 
-        if (empty($checkoutData) || empty($cart)) {
+        if (empty($checkoutData) || $cartItems->isEmpty()) {
             return redirect()->route('shop.products')->with('error', 'ဝယ်ယူမှု အချက်အလက်များ မရှိတော့ပါ။');
         }
 
         DB::beginTransaction();
         try {
-            // ၁။ Orders table သို့ သိမ်းခြင်း
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'name' => Auth::user()->name ?? 'Customer',
@@ -102,23 +107,18 @@ class CheckoutController extends Controller
                 'total_price' => $checkoutData['grand_Total'],
                 'status' => 'pending',
             ]);
-
-            // ၂။ Order Items များကို သိမ်းခြင်း နှင့် Product Stock များကို နှုတ်ခြင်း
-            foreach ($cart as $id => $item) {
+            foreach ($cartItems as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => $id,
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price'],
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->product->price,
                 ]);
-
-                $product = Product::find($id);
+                $product = Product::find($item->product_id);
                 if ($product) {
-                    $product->decrement('stock', $item['quantity']);
+                    $product->decrement('stock', $item->quantity);
                 }
             }
-
-            // ၃။ Payments table သို့ ငွေပေးချေမှု အချက်အလက် သိမ်းခြင်း
             $slipPath = null;
             if ($request->hasFile('payment_slip')) {
                 $slipPath = $request->file('payment_slip')->store('slips', 'public');
@@ -130,14 +130,11 @@ class CheckoutController extends Controller
                 'payment_slip' => $slipPath,
                 'status' => 'pending',
             ]);
-
-            // ၄။ Cart နှင့် Checkout Session များကို ရှင်းလင်းခြင်း
-            session()->forget(['cart', 'checkout_data']);
+            CartItem::where('user_id', Auth::id())->delete();
+            session()->forget(['checkout_data']);
             session()->save();
 
             DB::commit();
-
-            // ၅။ အောင်မြင်ပါက Success Page သို့ ပို့မည်
             return view('orders.success', compact('order'));
 
         } catch (\Exception $e) {

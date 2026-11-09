@@ -16,8 +16,6 @@
             --sidebar-width: 250px;
         }
         body { background: var(--pink-bg); color: #563b47; font-family: system-ui, -apple-system, sans-serif; }
-        
-        /* Sidebar Layout */
         .sidebar {
             width: var(--sidebar-width);
             position: fixed;
@@ -60,14 +58,10 @@
             background: var(--pink-primary);
             color: white;
         }
-
-        /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 25px;
         }
-        
-        /* Cards & Graphs */
         .stat-card {
             background: white;
             border-radius: 16px;
@@ -117,10 +111,7 @@
 </li>
                 </ul>
     </div>
-
-    <!-- Main Content Area -->
     <div class="main-content">
-        <!-- Top Stat Boxes -->
         <div class="row g-4 mb-4">
             <div class="col-md-4">
                 <div class="stat-card">
@@ -141,18 +132,13 @@
                 </div>
             </div>
         </div>
-
-        <!-- Graphs Section -->
         <div class="row g-4">
-            <!-- Line Chart (Sales Overview) -->
             <div class="col-md-8">
                 <div class="chart-card">
                     <h5 class="fw-bold mb-3" style="color: var(--pink-primary);">📈 Sales Overview</h5>
                     <canvas id="salesChart" height="130"></canvas>
                 </div>
             </div>
-
-            <!-- Doughnut Chart (Category Share) -->
             <div class="col-md-4">
                 <div class="chart-card">
                     <h5 class="fw-bold mb-3" style="color: var(--pink-primary);">🌸 Categories</h5>
@@ -161,13 +147,8 @@
             </div>
         </div>
     </div>
-
-    <!-- Chart.js Initialization Script -->
     <script>
-        // Sales Chart (Line) - Dynamic from Controller
-     // Sales Chart (Line) - Dynamic from Controller
         const salesDataValues = @json($salesData);
-
         const ctxSales = document.getElementById('salesChart').getContext('2d');
         new Chart(ctxSales, {
             type: 'line',
@@ -183,8 +164,6 @@
                 }]
             }
         });
-
-        // Category Chart (Doughnut - Dynamic from Database)
         const categoryLabels = @json($categoryNames);
         const categoryData = @json($categoryCounts);
 
