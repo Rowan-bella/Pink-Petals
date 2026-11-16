@@ -73,6 +73,18 @@ class FortifyServiceProvider extends ServiceProvider
                             }
                         }
                     }
+                    if ($request->filled('guest_wishlist') && auth()->check()) {
+    $guestWishlist = json_decode($request->input('guest_wishlist'), true);
+
+    if (is_array($guestWishlist)) {
+        foreach ($guestWishlist as $wishlistProductId) {
+            \App\Models\Wishlist::firstOrCreate([
+                'user_id' => auth()->id(),
+                'product_id' => $wishlistProductId
+            ]);
+        }
+    }
+}
 
                     $user = auth()->user();
 

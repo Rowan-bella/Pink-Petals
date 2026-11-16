@@ -94,6 +94,9 @@
             <li><a href="{{ route('admin.categories') }}" class="active"><i class="fa-solid fa-list"></i> Categories</a></li>
             <li><a href="{{ route('admin.orders') }}"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
             <li><a href="{{ route('admin.users.index')}}"><i class="fa-solid fa-users"></i> Users</a></li>
+            <li><a href="{{ route('admin.coupons.index') }}><i class="fa-solid fa-ticket"></i> Manage Coupons</a></li>
+            <li><a href="{{ route('admin.reports.sales') }}" > <i class="fa-solid fa-chart-line"></i> Sales Report  </a></li>
+            <li><a href="{{ route('admin.reports.inventory') }}" > <i class="fa-solid fa-boxes-stacked me-2"></i> Inventory Report  </a></li>
             <li><a href="{{ route('home')}}" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a><li>
 
         </ul>

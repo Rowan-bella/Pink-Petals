@@ -124,10 +124,13 @@
             <li><a href="{{ route('admin.categories') }}"><i class="fa-solid fa-list"></i> Categories</a></li>
             <li><a href="{{ route('admin.orders') }}"><i class="fa-solid fa-cart-shopping"></i> Orders</a></li>
             <li><a href="{{ route('admin.users.index')}}"><i class="fa-solid fa-users"></i> Users</a></li>
-            <li><a href="{{ route('home')}}" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a><li>
-
+            <li><a href="{{ route('admin.coupons.index') }}"><i class="fa-solid fa-ticket"></i> Manage Coupons</a></li>
+            <li><a href="{{ route('admin.reports.sales') }}" > <i class="fa-solid fa-chart-line"></i> Sales Report  </a></li>
+             <li><a href="{{ route('admin.reports.inventory') }}" > <i class="fa-solid fa-boxes-stacked me-2"></i> Inventory Report  </a></li>
+            <li><a href="{{ route('home')}}" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
         </ul>
     </div>
+    
     <div class="main-content">
         <div class="content-card">
             @if(session('success'))
@@ -154,17 +157,37 @@
                         @endisset
                     </p>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 align-items-center">
                     @isset($category)
                         <a href="{{ route('admin.categories') }}" class="btn btn-outline-secondary px-3 py-2">
                             <i class="fa-solid fa-arrow-left me-1"></i> Back to Categories
                         </a>
                     @endisset
+                
+                    <a href="{{ route('products.export') }}" class="btn btn-success px-3 py-2">
+                        <i class="fa-solid fa-file-excel me-1"></i> Export Excel
+                    </a>
+
                     <a href="{{ route('products.create') }}" class="btn btn-pink px-3 py-2">
                         <i class="fa-solid fa-plus me-1"></i> Add New Product
                     </a>
                 </div>
             </div>
+            <div class="card bg-light border-0 mb-4 p-3 shadow-sm">
+                <form action="{{ route('products.import') }}" method="POST" enctype="multipart/form-data" class="row g-2 align-items-center">
+                    @csrf
+                    <div class="col-auto">
+                        <label class="fw-semibold text-muted small mb-0"><i class="fa-solid fa-upload me-1"></i> Import Products Excel:</label>
+                    </div>
+                    <div class="col-md-5">
+                        <input type="file" name="file" class="form-control form-control-sm @error('file') is-invalid @enderror" required>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-dark btn-sm px-3">Upload & Import</button>
+                    </div>
+                </form>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-custom align-middle">
                     <thead>
@@ -225,6 +248,10 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+            
+            <div class="d-flex justify-content-center mt-4">
+                {{ $products->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>

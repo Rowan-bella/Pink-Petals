@@ -13,18 +13,15 @@
         }
         body { background-color: var(--pink-bg); font-family: system-ui, sans-serif; }
         .sidebar { background: white; min-height: 100vh; border-right: 1px solid #dee2e6; }
-        
         .active-pink {
             background-color: var(--pink-primary) !important;
-            color: white !important;
+            color: white !important; 
             box-shadow: 0 4px 15px rgba(199, 93, 131, 0.25);
         }
-
         .nav-link:hover:not(.active-pink) {
             background-color: #fff5f7;
             color: var(--pink-primary) !important;
         }
-
         .table-card { background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: none; }
         .btn-pink { background-color: var(--pink-primary); color: white; border: none; }
         .btn-pink:hover { background-color: #b04c71; color: white; }
@@ -62,6 +59,21 @@
                             <i class="fa-solid fa-users"></i> Users
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.coupons.index') }}" class="nav-link text-dark fw-semibold d-flex align-items-center gap-2 py-2 px-3 rounded-4">
+                            <i class="fa-solid fa-ticket"></i> Manage Coupons
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.reports.sales') }}"  class="nav-link text-dark fw-semibold d-flex align-items-center gap-2 py-2 px-3 rounded-4">
+                            <i class="fa-solid fa-chart-line"></i> Sales Report 
+                         </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.reports.inventory') }}"  class="nav-link text-dark fw-semibold d-flex align-items-center gap-2 py-2 px-3 rounded-4">
+                            <i class="fa-solid fa-boxes-stacked me-2"></i> Inventory Report 
+                         </a>
+                    </li>
                     <li class="nav-item mt-3">
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
@@ -74,6 +86,9 @@
             </div>
             <div class="col-md-10 p-5">
                 <h3 class="fw-bold mb-4 text-dark">Order Management</h3>
+                <a href="{{ route('admin.orders.export') }}" class="btn btn-success">
+        <i class="fa-solid fa-file-excel me-1"></i> Export Orders Excel
+    </a>
                 <div class="card table-card p-4">
                     <div class="d-flex align-items-center mb-3 gap-2">
                         <i class="fa-solid fa-list-check" style="color: var(--pink-primary);"></i>
@@ -86,7 +101,7 @@
                                     <th>ORDER ID</th>
                                     <th>TOTAL AMOUNT</th>
                                     <th>PAYMENT METHOD</th>
-                                    <th>SLIP (ပြေစာ)</th>
+                                    <th>SLIP </th>
                                     <th>ORDER DATE</th>
                                     <th>CURRENT STATUS</th>
                                     <th>ACTION (STATUS)</th>
@@ -112,17 +127,23 @@
                                         <span class="badge bg-warning text-dark">{{ $order->status }}</span>
                                     </td>
                                     <td>
-                                        <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST" class="d-flex gap-2">
-                                            @csrf
-                                            @method('PATCH')
-                                            <select name="status" class="form-select form-select-sm" style="width: 130px;">
-                                                <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                                <option value="approved" {{ $order->status == 'approved' ? 'selected' : '' }}>Approved</option>
-                                                <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Delivered</option>
-                                                <option value="unpaid" {{ $order->status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
-                                            </select>
-                                            <button type="submit" class="btn btn-sm btn-pink">Save</button>
-                                        </form>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST" class="d-flex gap-1">
+                                                @csrf
+                                                @method('PATCH')
+                                                <select name="status" class="form-select form-select-sm" style="width: 110px;">
+                                                    <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                                    <option value="approved" {{ $order->status == 'approved' ? 'selected' : '' }}>Approved</option>
+                                                    <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                                                    <option value="unpaid" {{ $order->status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                                </select>
+                                                <button type="submit" class="btn btn-sm btn-pink">Save</button>
+                                            </form>
+                                            
+                                            <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-sm btn-outline-secondary" title="View Details">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                                 @empty
@@ -133,9 +154,13 @@
                             </tbody>
                         </table>
                     </div>
-                    
-                    <div class="mt-3">
-                        {{ $orders->links() }}
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div class="text-muted small">
+                            Showing {{ $orders->firstItem() ?? 0 }} to {{ $orders->lastItem() ?? 0 }} of {{ $orders->total() }} results
+                        </div>
+                        <div>
+                            {{ $orders->links() }}
+                        </div>
                     </div>
                 </div>
             </div>

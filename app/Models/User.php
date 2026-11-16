@@ -25,4 +25,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function wishlists()
+{
+    return $this->hasMany(Wishlist::class);
+}
+public function usedCoupons()
+{
+    return $this->belongsToMany(Coupon::class, 'coupon_user');
+}
 }

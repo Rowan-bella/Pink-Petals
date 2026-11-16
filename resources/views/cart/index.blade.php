@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Shopping Cart | Pink Petals</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -31,7 +30,7 @@
 </head>
 <body>
 
-
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-white shadow-sm py-3 mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold" href="{{ route('home') }}" style="color: var(--pink-primary);">
@@ -40,7 +39,24 @@
             <div class="ms-auto d-flex gap-3 align-items-center">
                 <a href="{{ route('home') }}" class="text-decoration-none text-dark fw-semibold">Home</a>
                 <a href="{{ route('shop.products') }}" class="text-decoration-none text-dark fw-semibold">Products</a>
-                <a href="{{ route('cart.index') }}" class="text-decoration-none fw-semibold" style="color: var(--pink-primary);">Cart</a>
+                
+                @if(auth()->check())
+                    <span class="fw-semibold text-secondary small d-none d-md-inline">
+                        <i class="fa-solid fa-user me-1" style="color: var(--pink-primary);"></i> မင်္ဂလာပါ၊ {{ auth()->user()->name }}
+                    </span>
+                    <a href="{{ route('user.orders') }}" class="text-decoration-none text-dark fw-semibold">
+                        <i class="fa-solid fa-bag-shopping" style="color: var(--pink-primary);"></i> My Orders
+                    </a>
+                    <a href="{{ route('cart.index') }}" class="text-decoration-none fw-semibold" style="color: var(--pink-primary);">Cart</a>
+
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Logout</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="text-decoration-none text-dark fw-semibold">Login</a>
+                    <a href="{{ route('register') }}" class="text-decoration-none text-dark fw-semibold">Register</a>
+                @endif
             </div>
         </div>
     </nav>
@@ -54,7 +70,6 @@
                 <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
                     <h5 class="fw-bold mb-3">Cart Items List</h5>
                     @php $subtotal = 0; @endphp
-                    {{-- 💡 session('cart') အစား Database မှ လာသော $cartItems ကို စစ်ဆေးခြင်း --}}
                     @if(isset($cartItems) && count($cartItems) > 0)
                         <div class="table-responsive">
                             <table class="table align-middle">
@@ -118,6 +133,8 @@
                     @endif
                 </div>
             </div>
+
+            <!-- Order Summary Sidebar -->
             <div class="col-lg-4">
                 <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
                     <h5 class="fw-bold mb-3">Order Summary</h5>
@@ -146,6 +163,7 @@
                         <span class="fw-bold fs-5">Grand Total</span>
                         <span class="fw-bold fs-5" style="color: var(--pink-primary);">{{ number_format($subtotal ?? 0) }} MMK</span>
                     </div>
+
                     @if(isset($cartItems) && count($cartItems) > 0)
                         <a href="{{ route('checkout.index') }}" class="btn btn-pink w-100 rounded-pill py-2 fw-semibold mb-2">
                             Proceed to Checkout
@@ -155,6 +173,7 @@
                             Proceed to Checkout
                         </button>
                     @endif
+
                     <div class="d-flex gap-2">
                         <a href="{{ route('shop.products') }}" class="btn btn-outline-secondary w-50 rounded-pill py-2 small fw-semibold">
                             <i class="fa-solid fa-arrow-left me-1"></i> ဆက်ဝယ်မည်
@@ -170,6 +189,7 @@
             </div>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

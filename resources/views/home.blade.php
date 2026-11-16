@@ -162,6 +162,9 @@
                     <span class="fw-semibold text-secondary small d-none d-md-inline">
                         <i class="fa-solid fa-user me-1" style="color: var(--pink-primary);"></i> မင်္ဂလာပါ၊ {{ auth()->user()->name }}
                     </span>
+                    <a href="{{ route('user.orders') }}" class="text-decoration-none text-dark fw-semibold ms-2 me-2">
+        <i class="fa-solid fa-bag-shopping" style="color: var(--pink-primary);"></i> My Orders
+    </a>
 
                     @php
                         $cartCount = 0;
@@ -253,11 +256,54 @@
                 @foreach($products as $product)
                     <div class="col-6 col-lg-3">
                         <div class="product-card p-3 shadow-sm rounded-4 border d-flex flex-column h-100 bg-white">
-                        
+                        @php
+        $isWishlisted = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
+    @endphp
+
+    @if(auth()->check())
+        <form action="{{ route('wishlist.toggle', $product->id) }}" method="POST" class="position-absolute top-0 end-0 m-3 z-3">
+            @csrf
+            <button type="submit" class="btn btn-light rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                @if($isWishlisted)
+                    <i class="fa-solid fa-heart text-danger fs-5"></i>
+                @else
+                    <i class="fa-regular fa-heart text-secondary fs-5"></i>
+                @endif
+            </button>
+        </form>
+    @else
+        <div class="position-absolute top-0 end-0 m-3 z-3">
+            <button type="button" onclick="toggleGuestWishlist({{ $product->id }})" class="btn btn-light rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                <i class="fa-regular fa-heart text-secondary fs-5" id="heart-icon-{{ $product->id }}"></i>
+            </button>
+        </div>
+    @endif
                             <img src="{{ asset('storage/' . $product->image) }}" class="product-image rounded-3 mb-3" style="width: 100%; height: 180px; object-fit: cover;" alt="{{ $product->name }}">
 
                             <h6 class="fw-bold mb-1 text-dark">{{ $product->name }}</h6>
                             <small class="text-muted mb-2">{{ $product->category->name ?? 'Flower Gifts' }}</small>
+                            <div class="mb-2 d-flex align-items-center gap-1" 
+         style="cursor: pointer;" 
+         onclick="openRatingModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
+         title="Review များကြည့်ရန်နှင့် Rating ပေးရန် နှိပ်ပါ">
+        
+        @php
+            $avgRating = method_exists($product, 'averageRating') ? $product->averageRating() : 0;
+            $ratingCount = method_exists($product, 'ratings') ? $product->ratings()->count() : 0;
+            $roundedRating = round($avgRating);
+        @endphp
+
+        <div class="star-rating">
+            @for ($i = 1; $i <= 5; $i++)
+                <i class="{{ $i <= $roundedRating ? 'fa-solid text-warning' : 'fa-regular text-muted' }} fa-star" style="font-size: 0.8rem;"></i>
+            @endfor
+        </div>
+
+        <span class="fw-bold text-dark small ms-1" id="avg-rating-{{ $product->id }}">{{ number_format($avgRating, 1) }}</span>
+        <span class="text-muted" id="rating-count-{{ $product->id }}" style="font-size: 0.75rem;">
+            ({{ $ratingCount }} reviews)
+        </span>
+    </div>
                             <div class="mb-2">
                                 <span class="badge bg-success bg-opacity-10 text-success px-2 py-1" style="font-size: 0.75rem;">
                                     Stock: {{ $product->stock }}

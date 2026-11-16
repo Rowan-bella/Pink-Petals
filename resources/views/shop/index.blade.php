@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -42,8 +42,9 @@
                     <span class="fw-semibold text-secondary small d-none d-md-inline">
                         <i class="fa-solid fa-user me-1" style="color: var(--pink-primary);"></i> မင်္ဂလာပါ၊ {{ auth()->user()->name }}
                     </span>
-                    
-                    {{-- Database (`cart_items`) မှ စုစုပေါင်းအရေအတွက်ကို ယူပြခြင်း --}}
+                    <a href="{{ route('user.orders') }}" class="text-decoration-none text-dark fw-semibold">
+                        <i class="fa-solid fa-bag-shopping" style="color: var(--pink-primary);"></i> My Orders
+                    </a>
                     @php
                         $cartCount = auth()->check() ? \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity') : 0;
                     @endphp
@@ -53,6 +54,17 @@
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
                             {{ $cartCount }}
                         </span>
+                    </a>
+                     @php
+                        $wishlistCount = auth()->check() ? \App\Models\Wishlist::where('user_id', auth()->id())->count() : 0;
+                    @endphp
+
+                    <a href="{{ route('wishlist.index') }}" class="text-decoration-none text-dark fw-semibold position-relative me-2 d-flex align-items-center gap-1">
+                      <i class="fa-solid fa-heart text-danger fs-5"></i>
+                      <span>Wishlist</span>
+                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                       {{ $wishlistCount }}
+                      </span>
                     </a>
                     <form action="{{ route('logout') }}" method="POST" class="d-inline">
                         @csrf
@@ -65,8 +77,8 @@
             </div>
         </div>
     </nav>
+
     <div class="container py-4">
-        
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
                 <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
@@ -75,6 +87,7 @@
         @endif
 
         <div class="row g-4">
+        
             <div class="col-lg-3 col-md-4">
                 <form action="{{ isset($selectedCategory) ? route('shop.category', $selectedCategory->id) : route('shop.products') }}" method="GET">
                     <h5 class="fw-bold mb-3" style="color: var(--pink-primary);">
@@ -103,6 +116,7 @@
                             </a>
                         @endforeach
                     </ul>
+
                     <h5 class="fw-bold mb-3" style="color: var(--pink-primary);">
                         <i class="fa-solid fa-tags me-2"></i> Price Range
                     </h5>
@@ -124,6 +138,7 @@
                             <label class="form-check-label small text-muted" for="price4">Over 80,000 MMK</label>
                         </div>
                     </div>
+
                     <h5 class="fw-bold mb-3" style="color: var(--pink-primary);">
                         <i class="fa-solid fa-box-open me-2"></i> Availability
                     </h5>
@@ -137,11 +152,13 @@
                             <label class="form-check-label small text-muted" for="outStock">Out of Stock</label>
                         </div>
                     </div>
+
                     <button type="submit" class="btn btn-pink w-100 rounded-pill py-2 fw-semibold shadow-sm">
                         Apply Filter
                     </button>
                 </form>
             </div>
+
             <div class="col-lg-9 col-md-8">
                 <h3 class="fw-bold mb-4" style="color: var(--pink-primary);">
                     {{ isset($selectedCategory) ? $selectedCategory->name : 'Beautiful Flowers for Every Moment' }}
@@ -149,8 +166,31 @@
                 
                 <div class="row">
                     @forelse($products as $product)
-                        <div class="col-md-3 mb-4">
-                            <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 shadow-sm border-0 rounded-4 position-relative">
+                                
+                                @php
+                                    $isWishlisted = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
+                                @endphp
+
+                                @if(auth()->check())
+                                    <form action="{{ route('wishlist.toggle', $product->id) }}" method="POST" class="position-absolute top-0 end-0 m-3 z-3">
+                                        @csrf
+                                        <button type="submit" class="btn btn-light rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                            @if($isWishlisted)
+                                                <i class="fa-solid fa-heart text-danger fs-5"></i>
+                                            @else
+                                                <i class="fa-regular fa-heart text-secondary fs-5"></i>
+                                            @endif
+                                        </button>
+                                    </form>
+                                @else
+    <div class="position-absolute top-0 end-0 m-3 z-3">
+        <button type="button" onclick="toggleGuestWishlist({{ data_get($product, 'id') }})" class="btn btn-light rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+            <i class="fa-regular fa-heart text-secondary fs-5" id="heart-icon-{{ data_get($product, 'id') }}"></i>
+        </button>
+    </div>
+@endif
                                 @if(data_get($product, 'image'))
                                     <img src="{{ asset('storage/' . data_get($product, 'image')) }}" class="card-img-top p-3 rounded-4" alt="{{ data_get($product, 'name') }}" style="height: 160px; object-fit: cover;">
                                 @else
@@ -163,8 +203,25 @@
                                     </h6>
                                     
                                     <p class="text-muted small mb-1">{{ data_get($product, 'category.name') ?? 'Uncategorized' }}</p>
+                                   <div class="mb-2 d-flex align-items-center gap-1">
+                                    @php
+                                        $avgRating = method_exists($product, 'averageRating') ? $product->averageRating() : 0;
+                                        $ratingCount = method_exists($product, 'ratings') ? $product->ratings()->count() : 0;
+                                        $roundedRating = round($avgRating);
+                                    @endphp
 
-                                    <div class="mb-2">
+                                    <div class="star-rating" id="stars-{{ $product->id }}" style="cursor: pointer;">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <i class="{{ $i <= $roundedRating ? 'fa-solid text-warning' : 'fa-regular text-muted' }} fa-star"
+                                               onclick="rateProduct({{ $product->id }}, {{ $i }})"
+                                               title="{{ $i }} Stars"></i>
+                                        @endfor
+                                    </div>
+
+                                    <span class="fw-bold text-dark small ms-1" id="avg-rating-{{ $product->id }}">{{ number_format($avgRating, 1) }}</span>
+                                    <span class="text-muted" id="rating-count-{{ $product->id }}" style="font-size: 0.75rem;">({{ $ratingCount }})</span>
+                                </div>
+                                 <div class="mb-2">
                                         @if(data_get($product, 'stock', 0) > 0)
                                             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" style="font-size: 0.75rem;">
                                                 Stock: {{ data_get($product, 'stock') }}
@@ -225,16 +282,14 @@
                     @endforelse
                 </div>
             </div>
-
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     const loginUrl = "{{ route('login') }}";
     const isLoggedIn = @json(auth()->check());
 
-    // 💡 Login မဝင်ရသေးသူများအတွက် SweetAlert2 ဖြင့် သတိပေးခြင်း
     function showLoginAlert(productId) {
         let qtyInput = document.getElementById('qty-' + productId);
         let qty = qtyInput ? qtyInput.value : 1;
@@ -244,26 +299,56 @@
             text: "ကျေးဇူးပြု၍ Login အရင်ဝင်ပေးပါရှင်။",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#c75d83', // Pink Petals Primary Pink Color
+            confirmButtonColor: '#c75d83',
             cancelButtonColor: '#6c757d',
             confirmButtonText: 'Login ဝင်မည်',
             cancelButtonText: 'မလုပ်တော့ပါ'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Product ID နှင့် Quantity များကို ပူးတွဲပြီး Login Page သို့ ပို့မည်
                 window.location.href = loginUrl + "?product_id=" + productId + "&quantity=" + qty;
             }
         });
     }
+    function toggleGuestWishlist(productId) {
+    let wishlist = JSON.parse(localStorage.getItem('guest_wishlist')) || [];
+    let index = wishlist.indexOf(productId);
+    let icon = document.getElementById('heart-icon-' + productId);
 
-    // 💡 Login ဝင်ပြီးသားသူများအတွက် AJAX ဖြင့် Cart ထဲသို့ ပစ္စည်းထည့်ခြင်း
+    if (index > -1) {
+        wishlist.splice(index, 1);
+        if (icon) {
+            icon.classList.remove('fa-solid', 'text-danger');
+            icon.classList.add('fa-regular', 'text-secondary');
+        }
+        Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Wishlist မှ ဖယ်ရှားလိုက်ပါပြီ', showConfirmButton: false, timer: 1500 });
+    } else {
+        wishlist.push(productId);
+        if (icon) {
+            icon.classList.remove('fa-regular', 'text-secondary');
+            icon.classList.add('fa-solid', 'text-danger');
+        }
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Wishlist ထဲသို့ ထည့်ပြီးပါပြီ', showConfirmButton: false, timer: 1500 });
+    }
+
+    localStorage.setItem('guest_wishlist', JSON.stringify(wishlist));
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    let wishlist = JSON.parse(localStorage.getItem('guest_wishlist')) || [];
+    wishlist.forEach(id => {
+        let icon = document.getElementById('heart-icon-' + id);
+        if (icon) {
+            icon.classList.remove('fa-regular', 'text-secondary');
+            icon.classList.add('fa-solid', 'text-danger');
+        }
+    });
+});
     function addToCartWithSweetAlert(event, form, maxStock) {
         event.preventDefault();
 
         let qtyInput = form.querySelector('input[name="quantity"]');
         let selectedQty = parseInt(qtyInput.value);
 
-        // Stock လက်ကျန်ထက် ကျော်လွန်ခြင်း ရှိမရှိ စစ်ဆေးခြင်း
         if (selectedQty > maxStock) {
             Swal.fire({
                 title: 'ပမာဏကျော်လွန်နေပါသည်',
@@ -302,7 +387,7 @@
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        location.reload(); // အောင်မြင်ပါက Page ကို Refresh လုပ်မည်
+                        location.reload();
                     }
                 });
             }
@@ -311,6 +396,64 @@
             console.error('Error:', error);
         });
     }
-</script>
+    function rateProduct(productId, rating) {
+        if (!isLoggedIn) {
+            Swal.fire({
+                title: 'Login ဝင်ရန် လိုအပ်ပါသည်။',
+                text: "Rating ပေးရန်အတွက် Login အရင်ဝင်ပေးပါရှင်။",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#c75d83',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Login ဝင်မည်',
+                cancelButtonText: 'မလုပ်တော့ပါ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = loginUrl;
+                }
+            });
+            return;
+        }
+
+        fetch(`/products/${productId}/rating`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ rating: rating })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+            
+                document.getElementById('avg-rating-' + productId).innerText = data.average;
+                document.getElementById('rating-count-' + productId).innerText = `(${data.count})`;
+
+                let starContainer = document.getElementById('stars-' + productId);
+                let stars = starContainer.querySelectorAll('i');
+                let rounded = Math.round(parseFloat(data.average));
+                stars.forEach((star, index) => {
+                    if (index < rounded) {
+                        star.className = 'fa-solid text-warning fa-star';
+                    } else {
+                        star.className = 'fa-regular text-muted fa-star';
+                    }
+                });
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: data.message,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    </script>
 </body>
 </html>

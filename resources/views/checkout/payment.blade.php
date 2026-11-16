@@ -37,7 +37,23 @@
             <div class="ms-auto d-flex gap-3 align-items-center">
                 <a href="{{ route('home') }}" class="text-decoration-none text-dark fw-semibold">Home</a>
                 <a href="{{ route('shop.products') }}" class="text-decoration-none text-dark fw-semibold">Products</a>
-                <a href="{{ route('cart.index') }}" class="text-decoration-none fw-semibold" style="color: var(--pink-primary);">Cart</a>
+                @if(auth()->check())
+                    <span class="fw-semibold text-secondary small d-none d-md-inline">
+                        <i class="fa-solid fa-user me-1" style="color: var(--pink-primary);"></i> မင်္ဂလာပါ၊ {{ auth()->user()->name }}
+                    </span>
+                    <a href="{{ route('user.orders') }}" class="text-decoration-none text-dark fw-semibold">
+                        <i class="fa-solid fa-bag-shopping" style="color: var(--pink-primary);"></i> My Orders
+                    </a>
+                    <a href="{{ route('cart.index') }}" class="text-decoration-none fw-semibold" style="color: var(--pink-primary);">Cart</a>
+
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Logout</button>
+                    </form>
+                    @else
+                    <a href="{{ route('login') }}" class="text-decoration-none text-dark fw-semibold">Login</a>
+                    <a href="{{ route('register') }}" class="text-decoration-none text-dark fw-semibold">Register</a>
+                @endif
             </div>
         </div>
     </nav>

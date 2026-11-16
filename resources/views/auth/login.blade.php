@@ -116,6 +116,7 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
             <input type="hidden" name="product_id" value="{{ request('product_id') }}">
+            <input type="hidden" name="guest_wishlist" id="guest_wishlist_input">
             <div class="mb-3 position-relative">
                 <i class="fa-regular fa-envelope input-group-icon"></i>
                 <input
@@ -163,6 +164,15 @@
         </form>
     </div>
 </div>
+<script>
+    document.querySelector('form').addEventListener('submit', function() {
+        let wishlist = localStorage.getItem('guest_wishlist');
+        if (wishlist) {
+            document.getElementById('guest_wishlist_input').value = wishlist;
+            localStorage.removeItem('guest_wishlist'); // ပို့ပြီးရင် အဟောင်းကို ရှင်းပစ်မယ်
+        }
+    });
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

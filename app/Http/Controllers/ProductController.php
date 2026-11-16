@@ -6,6 +6,11 @@ use App\Models\Category;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ProductsExport;
+use App\Imports\ProductsImport;
+
+
 
 class ProductController extends Controller
 {
@@ -16,13 +21,13 @@ class ProductController extends Controller
         $totalRevenue = Order::whereIn('status', ['delivered', 'approved'])->sum('total_price');
         $startOfWeek = now()->startOfWeek(Carbon::MONDAY);
         $salesData = [
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(0))->sum('total_price'), // Mon
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(1))->sum('total_price'), // Tue
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(2))->sum('total_price'), // Wed
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(3))->sum('total_price'), // Thu (ကြာသပတေး - ယနေ့)
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(4))->sum('total_price'), // Fri
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(5))->sum('total_price'), // Sat
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(6))->sum('total_price'), // Sun
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(0))->sum('total_price'), 
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(1))->sum('total_price'), 
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(2))->sum('total_price'), 
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(3))->sum('total_price'), 
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(4))->sum('total_price'), 
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(5))->sum('total_price'), 
+            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(6))->sum('total_price'), 
         ];
         $categories = Category::withCount('products')->get();
         $categoryNames = $categories->pluck('name');
@@ -46,7 +51,7 @@ class ProductController extends Controller
     }
     public function index()
     {
-        $products = Product::with('category')->latest()->get();
+        $products = Product::latest()->paginate(6);
 
         return view('products.index', compact('products'));
     }
@@ -128,6 +133,23 @@ class ProductController extends Controller
             ->route('products.index')
             ->with('success', 'ပန်းပစ္စည်းကို ဖျက်ပြီးပါပြီ။');
     }
+     public function export()
+    {
+        return Excel::download(new ProductsExport, 'products.xlsx');
+    }
+
+    
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        Excel::import(new ProductsImport, $request->file('file'));
+
+        return back()->with('success', 'Excel ဖိုင်မှ ပစ္စည်းများကို အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။');
+    }
+
 
     public function byCategory($id)
     {

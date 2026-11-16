@@ -8,7 +8,10 @@ use App\Models\Product;
 use App\Models\CartItem; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderInvoiceMail;
+use App\Mail\AdminNewOrderMail;
+use App\Models\Coupon;
 class CheckoutController extends Controller
 {
     public function index()
@@ -25,17 +28,20 @@ class CheckoutController extends Controller
             $subtotal += $item->product->price * $item->quantity;
         }
 
-        $deliveryFee = 2000; 
-        $grandTotal = $subtotal + $deliveryFee;
+        // $deliveryFee = 0; 
+        $grandTotal = $subtotal;
+        $availableCoupons = Coupon::whereNull('expires_at')
+                            ->orWhere('expires_at', '>', now())
+                            ->get();
 
-        return view('checkout.index', compact('cartItems', 'subtotal', 'deliveryFee', 'grandTotal'));
+        return view('checkout.index', compact('cartItems', 'subtotal',  'grandTotal','availableCoupons'));
     }
 
     public function processShipping(Request $request)
     {
         $request->validate([
             'phone' => 'required|string',
-            'delivery_area' => 'required',
+            // 'delivery_area' => 'required',
             'address' => 'required|string',
         ]);
 
@@ -48,15 +54,23 @@ class CheckoutController extends Controller
             $subtotal += $item->product->price * $item->quantity;
         }
 
-        $deliveryFee = (float) $request->delivery_area;
-        $grandTotal = $subtotal + $deliveryFee;
-
+        // $deliveryFee = (float) $request->delivery_area;
+        $discount = 0;
+        if (session()->has('coupon')) {
+        $discount = session('coupon')['discount'];
+    }
+        // $grandTotal = ($subtotal-$discount) + $deliveryFee;
+        $grandTotal = ($subtotal-$discount);
+        if ($grandTotal < 0) {
+        $grandTotal = 0;
+    }
         session([
             'checkout_data' => [
                 'phone' => $request->phone,
-                'delivery_area' => $deliveryFee,
+                // 'delivery_area' => $deliveryFee,
                 'address' => $request->address,
                 'subtotal' => $subtotal,
+                'discount' => $discount,
                 'grand_Total' => $grandTotal
             ]
         ]);
@@ -69,8 +83,21 @@ class CheckoutController extends Controller
         if (empty($checkoutData)) {
             return redirect()->route('checkout.index')->with('error', 'ကျေးဇူးပြု၍ ပထမဦးစွာ လိပ်စာဖြည့်ပါ။');
         }
-
-        $grandTotal = $checkoutData['grand_Total'];
+        $cartItems = CartItem::with('product')->where('user_id', Auth::id())->get();
+    $subtotal = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
+    // $deliveryFee = $checkoutData['delivery_area'] ??0;
+    $discount = 0;
+    if (session()->has('coupon')) {
+        $discount = session('coupon')['discount'];
+    }
+        // $grandTotal = ($subtotal - $discount) + $deliveryFee;
+        $grandTotal = ($subtotal - $discount);
+    if ($grandTotal < 0) {
+        $grandTotal = 0;
+    }
+     $checkoutData['grand_Total'] = $grandTotal;
+    $checkoutData['discount'] = $discount;
+    session(['checkout_data' => $checkoutData]);
 
         return view('checkout.payment', compact('grandTotal'));
     }
@@ -99,14 +126,18 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
+            
+            $grandTotal = $checkoutData['grand_Total'];
+
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'name' => Auth::user()->name ?? 'Customer',
                 'phone' => $checkoutData['phone'],
                 'address' => $checkoutData['address'],
-                'total_price' => $checkoutData['grand_Total'],
+                'total_price' => $grandTotal,
                 'status' => 'pending',
             ]);
+
             foreach ($cartItems as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -114,11 +145,13 @@ class CheckoutController extends Controller
                     'quantity' => $item->quantity,
                     'price' => $item->product->price,
                 ]);
+
                 $product = Product::find($item->product_id);
                 if ($product) {
                     $product->decrement('stock', $item->quantity);
                 }
             }
+
             $slipPath = null;
             if ($request->hasFile('payment_slip')) {
                 $slipPath = $request->file('payment_slip')->store('slips', 'public');
@@ -130,16 +163,88 @@ class CheckoutController extends Controller
                 'payment_slip' => $slipPath,
                 'status' => 'pending',
             ]);
+
+            if (session()->has('coupon')) {
+                $couponId = session('coupon')['id'];
+                $coupon = Coupon::find($couponId);
+                
+                if ($coupon && $coupon->code === 'WELCOME5') {
+                    Auth::user()->usedCoupons()->syncWithoutDetaching([$couponId]);
+                }
+            }
+
             CartItem::where('user_id', Auth::id())->delete();
-            session()->forget(['checkout_data']);
+            session()->forget(['checkout_data', 'coupon']);
             session()->save();
-
             DB::commit();
-            return view('orders.success', compact('order'));
 
+            $adminEmail = "b66873014@gmail.com";
+            if ($adminEmail) {
+                Mail::to($adminEmail)->send(new AdminNewOrderMail($order));
+            }
+
+            return view('orders.success', compact('order'));
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'မှားယွင်းမှု ရှိသွားပါသည်။ ကျေးဇူးပြု၍ ထပ်မံကြိုးစားပါ။')->withInput();
         }
     }
+    public function applyCouponAjax(Request $request)
+    {
+        $request->validate([
+            'coupon_code' => 'required|string',
+        ]);
+
+        $coupon = Coupon::where('code', $request->coupon_code)->first();
+
+        if (!$coupon) {
+            return response()->json(['success' => false, 'message' => 'ထည့်သွင်းလိုက်သော ကူပွန်ကုဒ် မရှိပါ။']);
+        }
+
+        if ($coupon->expires_at && now()->greaterThan($coupon->expires_at)) {
+            return response()->json(['success' => false, 'message' => 'ဤကူပွန် သက်တမ်း ကုန်ဆုံးသွားပါပြီ။']);
+        }
+
+        if ($coupon->code === 'WELCOME5') {
+            $alreadyUsed = Auth::user()->usedCoupons()->where('coupon_id', $coupon->id)->exists();
+            if ($alreadyUsed) {
+                return response()->json(['success' => false, 'message' => 'Welcome ကူပွန်ကို သင် အသုံးပြုပြီးသား ဖြစ်ပါသည်။']);
+            }
+        }
+
+        $cartItems = CartItem::where('user_id', Auth::id())->with('product')->get();
+        $subtotal = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
+
+        if ($subtotal < $coupon->min_spend) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'ဤကူပွန်ကို အသုံးပြုရန်အတွက် စုစုပေါင်းငွေပမာဏ ' . number_format($coupon->min_spend) . ' MMK ပြည့်ရန် လိုအပ်ပါသည်။'
+            ]);
+        }
+
+        if ($coupon->type === 'percent') {
+            $discount = ($subtotal * $coupon->value) / 100;
+        } else {
+            $discount = $coupon->value;
+        }
+
+        session([
+            'coupon' => [
+                'id' => $coupon->id,
+                'code' => $coupon->code,
+                'discount' => $discount,
+            ]
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'discount' => $discount,
+            'message' => 'ကူပွန် အောင်မြင်စွာ အသုံးပြုပြီးပါပြီ။'
+        ]);
+    }
+public function removeCoupon()
+{
+    session()->forget('coupon');
+    return back()->with('success', 'ကူပွန်ကို ဖယ်ရှားပြီးပါပြီ။');
+}
 }

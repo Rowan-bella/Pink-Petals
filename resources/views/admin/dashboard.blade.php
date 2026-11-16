@@ -101,6 +101,23 @@
             @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'manager'))
                 <li><a href="{{ route('admin.users.index')}}"><i class="fa-solid fa-users"></i> Users</a></li>
             @endif
+            @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'manager'))
+            <li><a href="{{ route('admin.coupons.index') }}"><i class="fa-solid fa-ticket me-1"></i> Manage Coupons</a> </li>
+            @endif
+            @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li>
+        <a href="{{ route('admin.reports.sales') }}" class="{{ request()->routeIs('admin.reports.sales') ? 'active' : '' }}">
+            <i class="fa-solid fa-chart-line"></i> Sales Report
+        </a>
+    </li>
+@endif
+ @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li>
+        <a href="{{ route('admin.reports.inventory') }}" class="{{ request()->routeIs('admin.reports.inventory') ? 'active' : '' }}">
+        <i class="fa-solid fa-boxes-stacked me-2"></i> Inventory Report
+        </a>
+    </li>
+@endif
                 <li>
     <form action="{{ route('logout') }}" method="POST" class="d-inline">
         @csrf
