@@ -74,6 +74,9 @@
                             <i class="fa-solid fa-boxes-stacked me-2"></i> Inventory Report 
                          </a>
                     </li>
+                      <li class="nav-itam"><a href="{{route('admin.reports.activity')}}"class="nav-link text-dark fw-semibold d-flex align-items-center gap-2 py-2 px-3 rounded-4">
+                        <i class="fa-solid fa-users-viewfinder"></i>Customer Activity</a>
+                    </li>
                     <li class="nav-item mt-3">
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf

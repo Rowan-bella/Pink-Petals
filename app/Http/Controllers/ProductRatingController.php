@@ -30,4 +30,17 @@ class ProductRatingController extends Controller
 
         return redirect()->back()->with('success', 'ကျေးဇူးတင်ပါတယ်! သင့်ရဲ့ Rating ကို သိမ်းဆည်းပြီးပါပြီ။');
     }
+    public function getUserRating($productId)
+    {
+        $userRating = 0;
+        if (auth()->check()) {
+            $rating = ProductRating::where('user_id', auth()->id())
+                ->where('product_id', $productId)
+                ->first();
+            if ($rating) {
+                $userRating = $rating->rating;
+            }
+        }
+        return response()->json(['user_rating' => $userRating]);
+    }
 }

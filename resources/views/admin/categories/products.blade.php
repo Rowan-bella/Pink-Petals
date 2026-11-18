@@ -97,6 +97,7 @@
             <li><a href="{{ route('admin.coupons.index') }}><i class="fa-solid fa-ticket"></i> Manage Coupons</a></li>
             <li><a href="{{ route('admin.reports.sales') }}" > <i class="fa-solid fa-chart-line"></i> Sales Report  </a></li>
             <li><a href="{{ route('admin.reports.inventory') }}" > <i class="fa-solid fa-boxes-stacked me-2"></i> Inventory Report  </a></li>
+            <li><a href="{{route('admin.reports.activity')}}"><i class="fa-solid fa-users-viewfinder"></i>Customer Activity</a></li>
             <li><a href="{{ route('home')}}" class="text-danger text-decoration-none d-flex align-items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Logout</a><li>
 
         </ul>

@@ -40,7 +40,8 @@
             <li><a href="{{ route('admin.users.index') }}"><i class="fa-solid fa-users"></i> Users</a></li>
             <li><a href="{{ route('admin.coupons.index') }}" class="active"><i class="fa-solid fa-ticket"></i> Manage Coupons</a></li>
             <li><a href="{{ route('admin.reports.sales') }}" > <i class="fa-solid fa-chart-line"></i> Sales Report  </a></li>
-               <li><a href="{{ route('admin.reports.inventory') }}" > <i class="fa-solid fa-boxes-stacked me-2"></i> Inventory Report  </a></li>
+            <li><a href="{{ route('admin.reports.inventory') }}" > <i class="fa-solid fa-boxes-stacked me-2"></i> Inventory Report  </a></li>
+            <li><a href="{{route('admin.reports.activity')}}"><i class="fa-solid fa-users-viewfinder"></i>Customer Activity</a></li>
             <li>
                 <form action="{{ route('logout') }}" method="POST" class="m-0">
                     @csrf
@@ -57,7 +58,7 @@
         <div class="row">
             <div class="col-lg-6">
                 <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
-                    <h5 class="fw-bold mb-3 text-dark">ကူပွန်အချက်အလက် ပြင်ဆင်ရန်</h5>
+                    <h5 class="fw-bold mb-3 text-dark">Edit Coupon</h5>
                     
                     <form action="{{ route('admin.coupons.update', $coupon->id) }}" method="POST">
                         @csrf
@@ -74,8 +75,8 @@
                         <div class="mb-3">
                             <label class="form-label small fw-semibold text-muted">Discount Type</label>
                             <select name="type" class="form-select @error('type') is-invalid @enderror" required>
-                                <option value="percent" {{ (old('type', $coupon->type) == 'percent') ? 'selected' : '' }}>ရာခိုင်နှုန်း (%)</option>
-                                <option value="fixed" {{ (old('type', $coupon->type) == 'fixed') ? 'selected' : '' }}>ကျပ်ငွေ တိကျစွာ (Fixed)</option>
+                                <option value="percent" {{ (old('type', $coupon->type) == 'percent') ? 'selected' : '' }}>Percentage (%)</option>
+                                <option value="fixed" {{ (old('type', $coupon->type) == 'fixed') ? 'selected' : '' }}>Fixed Amount</option>
                             </select>
                             @error('type')
                                 <div class="text-danger small mt-1">{{ $message }}</div>

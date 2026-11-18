@@ -118,6 +118,13 @@
         </a>
     </li>
 @endif
+ @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li>
+        <a href="{{ route('admin.reports.activity') }}" class="{{ request()->routeIs('admin.reports.activity') ? 'active' : '' }}">
+        <i class="fa-solid fa-users-viewfinder"></i>Customer Activity
+        </a>
+    </li>
+@endif
                 <li>
     <form action="{{ route('logout') }}" method="POST" class="d-inline">
         @csrf

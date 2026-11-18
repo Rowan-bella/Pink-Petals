@@ -67,6 +67,7 @@
                     <i class="fa-solid fa-boxes-stacked"></i> Inventory Report
                 </a>
             </li>
+            <li><a href="{{route('admin.reports.activity')}}"><i class="fa-solid fa-users-viewfinder"></i>Customer Activity</a></li>
             <li>
                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                     @csrf

@@ -100,7 +100,8 @@
             <li><a href="{{ route('admin.users.index') }}"><i class="fa-solid fa-users"></i> Users</a></li>
             <li><a href="{{ route('admin.coupons.index') }}" class="active"><i class="fa-solid fa-ticket"></i> Manage Coupons</a></li>
             <li><a href="{{ route('admin.reports.sales') }}" > <i class="fa-solid fa-chart-line"></i> Sales Report  </a></li>
-               <li><a href="{{ route('admin.reports.inventory') }}" > <i class="fa-solid fa-boxes-stacked me-2"></i> Inventory Report  </a></li>
+            <li><a href="{{ route('admin.reports.inventory') }}" > <i class="fa-solid fa-boxes-stacked me-2"></i> Inventory Report  </a></li>
+            <li><a href="{{route('admin.reports.activity')}}"><i class="fa-solid fa-users-viewfinder"></i>Customer Activity</a></li>
             <li>
                 <form action="{{ route('logout') }}" method="POST" class="m-0">
                     @csrf
@@ -126,12 +127,12 @@
         <div class="row g-4">
             <div class="col-lg-4">
                 <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
-                    <h5 class="fw-bold mb-3 text-dark">ကူပွန်အသစ် ဖန်တီးရန်</h5>
+                    <h5 class="fw-bold mb-3 text-dark">Create New Coupon</h5>
                     <form action="{{ route('admin.coupons.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label small fw-semibold text-muted">Coupon Code</label>
-                            <input type="text" name="code" class="form-control @error('code') is-invalid @enderror" placeholder="ဥပမာ - PROMO50" required value="{{ old('code') }}">
+                            <input type="text" name="code" class="form-control @error('code') is-invalid @enderror" placeholder="e.g.,PROMO50" required value="{{ old('code') }}">
                             @error('code')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
@@ -140,8 +141,8 @@
                         <div class="mb-3">
                             <label class="form-label small fw-semibold text-muted">Discount Type</label>
                             <select name="type" class="form-select @error('type') is-invalid @enderror" required>
-                                <option value="percent">ရာခိုင်နှုန်း (%)</option>
-                                <option value="fixed">ကျပ်ငွေ တိကျစွာ (Fixed)</option>
+                                <option value="percent">Percentage (%)</option>
+                                <option value="fixed">Fixed Amount</option>
                             </select>
                             @error('type')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
@@ -150,7 +151,7 @@
 
                         <div class="mb-3">
     <label class="form-label small fw-semibold text-muted">Value</label>
-    <input type="number" step="1" name="value" class="form-control @error('value') is-invalid @enderror" placeholder="ဥပမာ - 10 သို့မဟုတ် 5000" value="{{ old('value') }}" required>
+    <input type="number" step="1" name="value" class="form-control @error('value') is-invalid @enderror" placeholder="e.g., 10 or 5000" value="{{ old('value') }}" required>
     @error('value')
         <div class="text-danger small mt-1">{{ $message }}</div>
     @enderror
@@ -158,7 +159,7 @@
 
 <div class="mb-3">
     <label class="form-label small fw-semibold text-muted">Minimum Spend</label>
-    <input type="number" step="1" name="min_spend" class="form-control @error('min_spend') is-invalid @enderror" placeholder="0 လျှင် အကန့်အသတ်မရှိ" value="{{ old('min_spend') }}">
+    <input type="number" step="1" name="min_spend" class="form-control @error('min_spend') is-invalid @enderror" placeholder="No limit if 0" value="{{ old('min_spend') }}">
 </div>
 
                         <div class="mb-3">
@@ -166,13 +167,13 @@
                             <input type="datetime-local" name="expires_at" class="form-control @error('expires_at') is-invalid @enderror" value="{{ old('expires_at') }}">
                         </div>
 
-                        <button type="submit" class="btn btn-pink w-100 rounded-pill py-2 fw-semibold shadow-sm">ကူပွန် သိမ်းဆည်းမည်</button>
+                        <button type="submit" class="btn btn-pink w-100 rounded-pill py-2 fw-semibold shadow-sm">Save Coupon</button>
                     </form>
                 </div>
             </div>
             <div class="col-lg-8">
                 <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
-                    <h5 class="fw-bold mb-3 text-dark">လက်ရှိ ကူပွန်များစာရင်း</h5>
+                    <h5 class="fw-bold mb-3 text-dark">Active Coupons List</h5>
                     <div class="table-responsive">
                         <table class="table align-middle">
                             <thead class="table-light">
@@ -210,7 +211,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted py-4">ကူပွန်များ ထည့်သွင်းထားခြင်း မရှိသေးပါ။</td>
+                                        <td colspan="5" class="text-center text-muted py-4">No Coupons Available</td>
                                     </tr>
                                 @endforelse
                             </tbody>

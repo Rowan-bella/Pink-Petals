@@ -33,4 +33,8 @@ public function usedCoupons()
 {
     return $this->belongsToMany(Coupon::class, 'coupon_user');
 }
+public function orders()
+{
+    return $this->hasMany(Order::class);
+}
 }
