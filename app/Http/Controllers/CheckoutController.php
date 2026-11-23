@@ -183,7 +183,7 @@ class CheckoutController extends Controller
                 Mail::to($adminEmail)->send(new AdminNewOrderMail($order));
             }
 
-            return view('orders.success', compact('order'));
+        return redirect()->route('orders.success', $order->id);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'မှားယွင်းမှု ရှိသွားပါသည်။ ကျေးဇူးပြု၍ ထပ်မံကြိုးစားပါ။')->withInput();
@@ -247,4 +247,8 @@ public function removeCoupon()
     session()->forget('coupon');
     return back()->with('success', 'ကူပွန်ကို ဖယ်ရှားပြီးပါပြီ။');
 }
+public function success(\App\Models\Order $order)
+    {
+        return view('orders.success', compact('order'));
+    }
 }

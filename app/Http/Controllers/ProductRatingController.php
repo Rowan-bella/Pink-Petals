@@ -11,11 +11,11 @@ class ProductRatingController extends Controller
     {
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
-            'review' => 'nullable|string|max:500',
+            // 'review' => 'nullable|string|max:500',
         ]);
         ProductRating::updateOrCreate(
             ['user_id' => Auth::id(), 'product_id' => $productId],
-            ['rating' => $request->rating, 'review' => $request->review]
+            ['rating' => $request->rating]
         );
 
         $product = Product::find($productId);

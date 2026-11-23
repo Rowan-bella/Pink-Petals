@@ -17,10 +17,25 @@ use App\Http\Controllers\Admin\InventoryReportController;
 use App\Http\Controllers\Admin\ActivityReportController;
 use App\Http\Controllers\Admin\OrderReportController;
 use App\Http\Controllers\Auth\GoogleController; 
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Session;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/home', [HomeController::class, 'index'])->name('home.alt'); 
+Route::get('/lang/{locale}', function (string $locale) {
+    if (in_array($locale, ['en', 'my'], true)) {
+        Session::put('locale', $locale);
+        App::setLocale($locale);
+    }
 
+    $previous = url()->previous();
+
+    if (!$previous || str_contains($previous, '/checkout/store')) {
+        return redirect()->route('home');
+    }
+
+    return redirect($previous);
+})->name('lang.switch');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth', 'role:admin,manager,staff'])->group(function () {
@@ -63,6 +78,7 @@ Route::get('/checkout/payment', [CheckoutController::class, 'showPaymentForm'])-
 Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::post('/apply-coupon-ajax', [CheckoutController::class, 'applyCouponAjax'])->name('coupon.apply.ajax');
 Route::post('/remove-coupon', [CheckoutController::class, 'removeCoupon'])->name('coupon.remove');
+Route::get('/orders/success/{order}', [CheckoutController::class, 'success']) ->middleware('auth')->name('orders.success');
 
 Route::middleware(['auth', 'role:admin,manager,staff'])->group(function () {
     Route::get('/admin/orders', [OrderController::class, 'index'])->name('admin.orders');

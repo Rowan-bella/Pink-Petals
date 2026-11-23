@@ -2,6 +2,8 @@
 namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 use Illuminate\Support\Facades\Storage;
 class CategoryController extends Controller
 {
@@ -11,13 +13,9 @@ class CategoryController extends Controller
         return view('admin.categories.index', compact('categories'));
     }
 
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048' // 👈 Image validation
-        ]);
+        $request->validated();
 
         $imagePath = null;
         if ($request->hasFile('image')) {
@@ -27,20 +25,16 @@ class CategoryController extends Controller
         Category::create([
             'name' => $request->name,
             'description' => $request->description,
-            'image' => $imagePath // 👈 Image path ကို သိမ်းဆည်းရန်
+            'image' => $imagePath
         ]);
 
         return redirect()->route('admin.categories')->with('success', 'Category အသစ် ထည့်သွင်းပြီးပါပြီ။');
     }
-    public function update(Request $request, $id)
+    public function update(UpdateCategoryRequest $request, $id)
     {
         $category = Category::findOrFail($id);
         
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $id,
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
-        ]);
+        $request->validated();
 
         $imagePath = $category->image;
         if ($request->hasFile('image')) {

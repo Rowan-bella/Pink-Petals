@@ -29,10 +29,11 @@ class GoogleController extends Controller
 
             Auth::login($user);
 
-            return redirect()->intended('/home');
+            return redirect()->intended('/shop/products');
             
         } catch (\Exception $e) {
-            return redirect('/home')->with('error', 'Google Login ဖြင့် ဝင်ရောက်ရာတွင် အမှားအယွင်း ရှိသွားပါသည်။');
+            \Log::error('Google Login Error: ' . $e->getMessage());
+            return redirect('/shop/products')->with('error', $e->getMessage());
         }
     }
 }

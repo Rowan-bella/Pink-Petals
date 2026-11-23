@@ -9,40 +9,59 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProductsExport;
 use App\Imports\ProductsImport;
-
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 
 
 class ProductController extends Controller
 {
     public function dashboard()
-    {
-        $totalProducts = Product::count(); 
-        $totalStock = Product::sum('stock'); 
-        $totalRevenue = Order::whereIn('status', ['delivered', 'approved'])->sum('total_price');
-        $startOfWeek = now()->startOfWeek(Carbon::MONDAY);
-        $salesData = [
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(0))->sum('total_price'), 
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(1))->sum('total_price'), 
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(2))->sum('total_price'), 
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(3))->sum('total_price'), 
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(4))->sum('total_price'), 
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(5))->sum('total_price'), 
-            Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(6))->sum('total_price'), 
-        ];
-        $categories = Category::withCount('products')->get();
-        $categoryNames = $categories->pluck('name');
-        $categoryCounts = $categories->pluck('products_count');
+{
+    $totalProducts = Product::count();
+    $totalStock = Product::sum('stock');
+    $totalRevenue = Order::whereIn('status', ['delivered', 'approved'])->sum('total_price');
 
-        return view('admin.dashboard', compact(
-            'totalProducts', 
-            'totalStock', 
-            'totalRevenue', 
-            'categoryNames', 
-            'categoryCounts',
-            'salesData'
-        ));
+    $startOfWeek = now()->startOfWeek(Carbon::MONDAY);
+    $salesData = [
+        Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(0))->sum('total_price'),
+        Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(1))->sum('total_price'),
+        Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(2))->sum('total_price'),
+        Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(3))->sum('total_price'),
+        Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(4))->sum('total_price'),
+        Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(5))->sum('total_price'),
+        Order::whereIn('status', ['delivered', 'approved'])->whereDate('created_at', (clone $startOfWeek)->addDays(6))->sum('total_price'),
+    ];
+
+    $monthlySalesData = [];
+    for ($month = 1; $month <= 12; $month++) {
+        $monthlySalesData[] = (float) Order::whereIn('status', ['delivered', 'approved'])
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', $month)
+            ->sum('total_price');
     }
-    
+
+    $yearlySalesData = [];
+    for ($year = now()->year - 4; $year <= now()->year; $year++) {
+        $yearlySalesData[] = (float) Order::whereIn('status', ['delivered', 'approved'])
+            ->whereYear('created_at', $year)
+            ->sum('total_price');
+    }
+
+    $categories = Category::withCount('products')->get();
+    $categoryNames = $categories->pluck('name');
+    $categoryCounts = $categories->pluck('products_count');
+
+    return view('admin.dashboard', compact(
+        'totalProducts',
+        'totalStock',
+        'totalRevenue',
+        'categoryNames',
+        'categoryCounts',
+        'salesData',
+        'monthlySalesData',
+        'yearlySalesData'
+    ));
+}
     public function categoryIndex()
     {
         $categories = Category::withCount('products')->get();
@@ -61,16 +80,9 @@ class ProductController extends Controller
 
         return view('products.create', compact('categories'));
     }
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0|max:99999999.99',
-            'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')
@@ -95,16 +107,9 @@ class ProductController extends Controller
 
         return view('products.edit', compact('product', 'categories'));
     }
-    public function update(Request $request, Product $product)
+    public function update(UpdateProductRequest $request, Product $product)
     {
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0|max:99999999.99',
-            'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('image')) {
             if ($product->image) {

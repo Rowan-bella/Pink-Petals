@@ -92,6 +92,13 @@
                     <input type="password" name="password_confirmation" class="form-control form-control-custom" required>
                 </div>
                 <button type="submit" class="btn btn-pink mb-3">Register &rarr;</button>
+                
+                 <div class="d-grid gap-2">
+                <a href="{{ route('auth.google') }}" 
+               class="btn btn-outline-secondary rounded-pill py-2 text-decoration-none text-center"
+                    style="border-color: #f8d7e0; color: #7a5c68;" >
+                    Continue with Google
+                </a>
                 <div class="d-grid gap-2">
                  <a
                     href="{{ route('home') }}"
