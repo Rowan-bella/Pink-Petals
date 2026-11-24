@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\OrderReportController;
 use App\Http\Controllers\Auth\GoogleController; 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\ContactController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/home', [HomeController::class, 'index'])->name('home.alt'); 
@@ -123,3 +124,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/contact-messages', [ContactController::class, 'index'])->name('contacts.index');
+    Route::delete('/contact-messages/{contactMessage}', [ContactController::class, 'destroy'])->name('contacts.destroy');
+});

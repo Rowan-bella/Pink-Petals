@@ -8,7 +8,9 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+        rel="stylesheet">
 
     <style>
     :root {
@@ -38,7 +40,7 @@
         flex-direction: column;
     }
 
-    
+
     .sidebar {
         width: var(--sidebar-width);
         position: fixed;
@@ -190,7 +192,7 @@
         min-height: calc(100vh - 28px);
     }
 
-    
+
     .top-navbar {
         background: rgba(255, 255, 255, .94);
         border: 1px solid rgba(255, 255, 255, .95);
@@ -287,7 +289,7 @@
         color: #fff;
     }
 
-    
+
     .profile-chip {
         display: flex;
         align-items: center;
@@ -323,7 +325,7 @@
         color: #be185d;
     }
 
-    
+
     .main-content {
         padding: 24px 4px;
         flex: 1;
@@ -615,6 +617,15 @@
                 </a>
             </li>
             @endif
+            @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li>
+                <a href="{{ route('admin.contacts.index') }}"
+                    class="{{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-envelope-open-text me-2"></i>
+                    {{ __('messages.contact_messages')}}
+                </a>
+            </li>
+            @endif
 
 
             <li class="sidebar-logout">
@@ -630,10 +641,10 @@
         </ul>
     </div>
 
-    
+
     <div class="page-wrapper">
 
-    
+
         <header class="top-navbar">
 
             <div class="top-title-wrap">
@@ -647,7 +658,7 @@
 
             <div class="d-flex align-items-center gap-3">
 
-                
+
                 <div class="dropdown">
                     <button class="btn lang-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -677,7 +688,7 @@
                     </ul>
                 </div>
 
-                
+
                 @php
                 $currentUser = auth()->user();
                 $currentRole = strtolower($currentUser->role ?? 'user');
@@ -769,13 +780,15 @@
                                 <td><span class="rank-badge">{{ $index + 1 }}</span></td>
                                 <td class="fw-bold">{{ $customer->name }}</td>
                                 <td class="text-muted small">{{ $customer->email }}</td>
-                                <td><span class="badge bg-light text-dark border">{{ $customer->orders_count }} {{ __('messages.orders_count_label') }}</span></td>
+                                <td><span class="badge bg-light text-dark border">{{ $customer->orders_count }}
+                                        {{ __('messages.orders_count_label') }}</span></td>
                                 <td class="fw-bold" style="color: var(--pink-deep);">
                                     {{ number_format($customer->orders_sum_total_price) }} {{ __('messages.mmk') }}</td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-4">{{ __('messages.no_customer_orders_available') }}</td>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    {{ __('messages.no_customer_orders_available') }}</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -804,16 +817,20 @@
                                     <tr>
                                         <td><span class="rank-badge">{{ $index + 1 }}</span></td>
                                         <td>
-                                            <div class="fw-bold">{{ $item->product->name ?? __('messages.deleted_product') }}</div>
+                                            <div class="fw-bold">
+                                                {{ $item->product->name ?? __('messages.deleted_product') }}</div>
                                             <small class="text-muted">{{ $item->product->category->name ?? '' }}</small>
                                         </td>
-                                        <td><span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">{{ $item->total_sold }} {{ __('messages.sold') }}</span></td>
+                                        <td><span
+                                                class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">{{ $item->total_sold }}
+                                                {{ __('messages.sold') }}</span></td>
                                         <td class="fw-bold small" style="color: var(--pink-deep);">
                                             {{ number_format($item->total_earned) }} {{ __('messages.mmk') }}</td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">{{ __('messages.no_sales_records_available') }}</td>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            {{ __('messages.no_sales_records_available') }}</td>
                                     </tr>
                                     @endforelse
                                 </tbody>
@@ -842,20 +859,24 @@
                                     <tr>
                                         <td><span class="rank-badge">{{ $index + 1 }}</span></td>
                                         <td>
-                                            <div class="fw-bold">{{ $wish->product->name ?? __('messages.deleted_product') }}</div>
+                                            <div class="fw-bold">
+                                                {{ $wish->product->name ?? __('messages.deleted_product') }}</div>
                                             <small class="text-muted">{{ $wish->product->category->name ?? '' }}</small>
                                         </td>
-                                        <td class="small">{{ number_format($wish->product->price ?? 0) }} {{ __('messages.mmk') }}</td>
+                                        <td class="small">{{ number_format($wish->product->price ?? 0) }}
+                                            {{ __('messages.mmk') }}</td>
                                         <td>
                                             <span class="badge rounded-pill px-3 py-2"
                                                 style="background: #fce7f3; color: var(--pink-deep);">
-                                                <i class="fa-solid fa-heart me-1"></i> {{ $wish->wishlist_count }} {{ __('messages.users_count_label') }}
+                                                <i class="fa-solid fa-heart me-1"></i> {{ $wish->wishlist_count }}
+                                                {{ __('messages.users_count_label') }}
                                             </span>
                                         </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">{{ __('messages.no_wishlist_items_available') }}</td>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            {{ __('messages.no_wishlist_items_available') }}</td>
                                     </tr>
                                     @endforelse
                                 </tbody>

@@ -7,7 +7,7 @@
     <title>{{ __('messages.home_page_title') }} | Pink Petals</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -19,6 +19,10 @@
             --text-main: #581c42;
             --light-pink: #ffe4f0;
             --cream: #fff7fb;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -34,7 +38,6 @@
             font-family: 'Playfair Display', serif;
         }
 
-    
         .navbar-custom {
             background: rgba(255, 255, 255, 0.94);
             backdrop-filter: blur(12px);
@@ -91,7 +94,6 @@
             color: var(--pink-deep);
         }
 
-        
         .flag-icon {
             width: 20px;
             height: 14px;
@@ -148,7 +150,6 @@
             color: #fff;
         }
 
-    
         .hero {
             background: linear-gradient(110deg, rgba(255, 232, 237, 0.9), rgba(255, 240, 247, 0.95));
             border: 1px solid rgba(255, 255, 255, 0.95);
@@ -202,7 +203,6 @@
             transform: translateY(-1px);
         }
 
-        
         .category-card,
         .product-card {
             background: rgba(255, 255, 255, 0.96);
@@ -234,6 +234,13 @@
             border-radius: 14px;
         }
 
+        .section-card {
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid #fbcfe8;
+            border-radius: 26px;
+            box-shadow: 0 8px 22px rgba(190, 24, 93, 0.075);
+        }
+
         .service-card {
             background: rgba(255, 255, 255, 0.95);
             border: 1px solid #fbcfe8;
@@ -242,6 +249,12 @@
             text-align: center;
             box-shadow: 0 8px 20px rgba(190, 24, 93, 0.06);
             height: 100%;
+            transition: all 0.25s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 26px rgba(190, 24, 93, 0.11);
         }
 
         .service-icon {
@@ -257,6 +270,19 @@
             margin-bottom: 10px;
         }
 
+        .form-control-pink {
+            border-radius: 14px;
+            border: 1px solid #f5d0df;
+            background-color: #fffafb;
+            padding: 11px 14px;
+            color: var(--text-main);
+        }
+
+        .form-control-pink:focus {
+            background-color: #ffffff;
+            border-color: var(--pink);
+            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.12);
+        }
 
         footer.site-footer {
             background: rgba(255, 255, 255, 0.94);
@@ -286,7 +312,6 @@
 </head>
 
 <body>
-    
     <nav class="navbar navbar-expand-lg sticky-top navbar-custom">
         <div class="container-fluid px-1">
             <div class="d-flex align-items-center flex-wrap gap-2 gap-lg-3">
@@ -308,7 +333,7 @@
             <div class="collapse navbar-collapse justify-content-end mt-2 mt-lg-0" id="homeNavbarCollapse">
                 <div class="d-flex flex-wrap align-items-center justify-content-end gap-2 gap-md-3">
                     @auth
-                         <span class="fw-semibold text-secondary small d-none d-xl-inline">
+                        <span class="fw-semibold text-secondary small d-none d-xl-inline">
                             <i class="fa-solid fa-user me-1" style="color: var(--pink);"></i>
                             {{ __('messages.greeting_user') }} {{ auth()->user()->name }}
                         </span>
@@ -319,30 +344,29 @@
                         </a>
 
                         @php
-                    $cartCount = auth()->check() ? \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity') : 0;
-                    @endphp
+                            $cartCount = auth()->check() ? \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity') : 0;
+                        @endphp
 
-                    <a href="{{ route('cart.index') }}" class="nav-link-item position-relative">
-                        <i class="fa-solid fa-cart-shopping fs-6" style="color: var(--pink-primary);"></i>
-                        <span id="cart-count-badge"
-                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                            style="font-size: 0.65rem;">
-                            {{ $cartCount }}
-                        </span>
-                    </a>
-                         @php
-                    $wishlistCount = auth()->check() ? \App\Models\Wishlist::where('user_id', auth()->id())->count() : 0;
-                    @endphp
+                        <a href="{{ route('cart.index') }}" class="nav-link-item position-relative">
+                            <i class="fa-solid fa-cart-shopping fs-6" style="color: var(--pink-primary);"></i>
+                            <span id="cart-count-badge"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 0.65rem;">
+                                {{ $cartCount }}
+                            </span>
+                        </a>
 
-                    <a href="{{ route('wishlist.index') }}" class="nav-link-item position-relative d-flex align-items-center gap-1">
-                        <i class="fa-solid fa-heart text-danger fs-6"></i>
-                        <!-- <span>{{ __('messages.wishlist') }}</span> -->
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                            style="font-size: 0.65rem;">
-                            {{ $wishlistCount }}
-                        </span>
-                    </a>
+                        @php
+                            $wishlistCount = auth()->check() ? \App\Models\Wishlist::where('user_id', auth()->id())->count() : 0;
+                        @endphp
 
+                        <a href="{{ route('wishlist.index') }}" class="nav-link-item position-relative d-flex align-items-center gap-1">
+                            <i class="fa-solid fa-heart text-danger fs-6"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 0.65rem;">
+                                {{ $wishlistCount }}
+                            </span>
+                        </a>
 
                         <form action="{{ route('logout') }}" method="POST" class="d-inline">
                             @csrf
@@ -357,7 +381,6 @@
                         <a href="{{ route('register') }}" class="btn btn-pink btn-sm py-2 px-3">{{ __('messages.register') }}</a>
                     @endguest
 
-            
                     <div class="dropdown">
                         <button class="btn lang-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             @if(app()->getLocale() === 'my')
@@ -387,7 +410,6 @@
             </div>
         </div>
     </nav>
-
 
     <section class="hero">
         <div class="container">
@@ -438,7 +460,6 @@
         </div>
     </section>
 
-    
     <section class="py-5">
         <div class="container">
             <div class="text-center mb-5">
@@ -539,9 +560,33 @@
         </div>
     </section>
 
-
-    <section id="about-section" class="py-4">
+    <section id="about-section" class="py-5">
         <div class="container">
+            <div class="section-card p-4 p-md-5 mb-4">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-8">
+                        <span class="badge rounded-pill px-3 py-2 mb-2"
+                            style="background-color: #fce7f3; color: var(--pink-deep); font-size: 0.8rem;">
+                            ✿ {{ __('messages.about_us') }}
+                        </span>
+                        <h2 class="fw-bold mb-2" style="color: var(--dark-pink);">
+                            {{ __('messages.about_title') }}
+                        </h2>
+                        <p class="fw-semibold small mb-3" style="color: var(--pink);">
+                            {{ __('messages.about_subtitle') }}
+                        </p>
+                        <p class="text-muted mb-0" style="line-height: 1.8;">
+                            {{ __('messages.about_description') }}
+                        </p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        <a href="{{ route('shop.products') }}" class="btn-pink">
+                            {{ __('messages.explore_collection') }} &nbsp; →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <div class="row g-4">
                 <div class="col-6 col-md-3">
                     <div class="service-card">
@@ -575,8 +620,137 @@
         </div>
     </section>
 
+    <section id="contact-section" class="py-5">
+        <div class="container">
+            <div class="section-card p-4 p-md-5">
+                <div class="text-center mb-5">
+                    <span class="badge rounded-pill px-3 py-2 mb-2"
+                        style="background-color: #fce7f3; color: var(--pink-deep); font-size: 0.8rem;">
+                        ✿ {{ __('messages.contact') }}
+                    </span>
+                    <h2 class="fw-bold mb-2" style="color: var(--dark-pink);">
+                        {{ __('messages.contact_title') }}
+                    </h2>
+                    <p class="text-muted small mx-auto" style="max-width: 600px;">
+                        {{ __('messages.contact_subtitle') }}
+                    </p>
+                </div>
 
-    <footer id="contact-section" class="site-footer">
+                @if(session('contact_success'))
+                    <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
+                        <i class="fa-solid fa-circle-check me-2"></i>
+                        {{ session('contact_success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                <div class="row g-4 align-items-stretch">
+                    <div class="col-lg-5">
+                        <div class="p-4 rounded-4 h-100 d-flex flex-column justify-content-between"
+                            style="background: linear-gradient(145deg, #fff5f9, #ffeaf3); border: 1px solid #fbcfe8;">
+                            <div class="d-flex flex-column gap-4">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="service-icon mb-0 flex-shrink-0">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1" style="color: var(--dark-pink);">{{ __('messages.contact_address_lbl') }}</h6>
+                                        <p class="small text-muted mb-0">{{ __('messages.contact_address') }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="service-icon mb-0 flex-shrink-0">
+                                        <i class="fa-solid fa-phone-volume"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1" style="color: var(--dark-pink);">{{ __('messages.contact_phone_lbl') }}</h6>
+                                        <p class="small text-muted mb-0">{{ __('messages.contact_phone') }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="service-icon mb-0 flex-shrink-0">
+                                        <i class="fa-solid fa-envelope"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1" style="color: var(--dark-pink);">{{ __('messages.contact_email_lbl') }}</h6>
+                                        <p class="small text-muted mb-0">{{ __('messages.contact_email') }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="service-icon mb-0 flex-shrink-0">
+                                        <i class="fa-regular fa-clock"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1" style="color: var(--dark-pink);">{{ __('messages.contact_hours_lbl') }}</h6>
+                                        <p class="small text-muted mb-0">{{ __('messages.contact_hours') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <form action="{{ route('contact.store') }}" method="POST" class="p-4 rounded-4 h-100"
+                            style="background-color: #ffffff; border: 1px solid #fbcfe8;">
+                            @csrf
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold text-muted">{{ __('messages.contact_name') }}</label>
+                                    <input type="text" name="name"
+                                        class="form-control form-control-pink @error('name') is-invalid @enderror"
+                                        value="{{ old('name', auth()->user()->name ?? '') }}" required>
+                                    @error('name')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold text-muted">{{ __('messages.contact_email_input') }}</label>
+                                    <input type="email" name="email"
+                                        class="form-control form-control-pink @error('email') is-invalid @enderror"
+                                        value="{{ old('email', auth()->user()->email ?? '') }}" required>
+                                    @error('email')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold text-muted">{{ __('messages.contact_phone_input') }}</label>
+                                    <input type="text" name="phone"
+                                        class="form-control form-control-pink @error('phone') is-invalid @enderror"
+                                        value="{{ old('phone', auth()->user()->phone ?? '') }}">
+                                    @error('phone')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold text-muted">{{ __('messages.contact_message') }}</label>
+                                    <textarea name="message" rows="4"
+                                        class="form-control form-control-pink @error('message') is-invalid @enderror"
+                                        required>{{ old('message') }}</textarea>
+                                    @error('message')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="btn-pink w-100">
+                                        <i class="fa-solid fa-paper-plane me-2"></i> {{ __('messages.contact_send_btn') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
         <div class="container text-center">
             <h4 class="brand justify-content-center mb-3">
                 <span class="brand-flower">✿</span>
@@ -600,22 +774,22 @@
     </footer>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleBtn = document.querySelector('.lang-dropdown-btn');
-        if (toggleBtn && typeof bootstrap === 'undefined') {
-            toggleBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const menu = this.nextElementSibling;
-                if (menu) menu.classList.toggle('show');
-            });
-            document.addEventListener('click', function() {
-                document.querySelectorAll('.lang-dropdown-menu.show').forEach(function(m) {
-                    m.classList.remove('show');
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.querySelector('.lang-dropdown-btn');
+            if (toggleBtn && typeof bootstrap === 'undefined') {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const menu = this.nextElementSibling;
+                    if (menu) menu.classList.toggle('show');
                 });
-            });
-        }
-    });
+                document.addEventListener('click', function() {
+                    document.querySelectorAll('.lang-dropdown-menu.show').forEach(function(m) {
+                        m.classList.remove('show');
+                    });
+                });
+            }
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -185,7 +185,7 @@
         min-height: calc(100vh - 28px);
     }
 
-    
+
     .top-navbar {
         background: rgba(255, 255, 255, .94);
         border: 1px solid rgba(255, 255, 255, .95);
@@ -281,7 +281,7 @@
         color: #fff;
     }
 
-    
+
     .profile-chip {
         display: flex;
         align-items: center;
@@ -370,7 +370,7 @@
         box-shadow: 0 4px 12px rgba(190, 24, 93, .08);
     }
 
-    
+
     .admin-footer {
         position: relative;
         overflow: hidden;
@@ -623,6 +623,15 @@
                 </a>
             </li>
             @endif
+            @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li>
+                <a href="{{ route('admin.contacts.index') }}"
+                    class="{{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-envelope-open-text me-2"></i>
+                    {{ __('messages.contact_messages')}}
+                </a>
+            </li>
+            @endif
 
 
             <li class="sidebar-logout">
@@ -638,10 +647,10 @@
         </ul>
     </div>
 
-    
+
     <div class="page-wrapper">
 
-    
+
         <header class="top-navbar">
 
             <div class="top-title-wrap">
@@ -684,7 +693,7 @@
                     </ul>
                 </div>
 
-                
+
                 @php
                 $currentUser = auth()->user();
                 $currentRole = strtolower($currentUser->role ?? 'user');
@@ -845,7 +854,7 @@
             </div>
         </div>
 
-        
+
         <footer class="admin-footer d-flex flex-wrap justify-content-between align-items-center gap-3">
 
             <span class="footer-brand">

@@ -669,6 +669,16 @@
                 </a>
             </li>
             @endif
+             @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li>
+                <a href="{{ route('admin.contacts.index') }}"
+                    class="{{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-envelope-open-text me-2"></i>
+                    {{ __('messages.contact_messages')}}
+                </a>
+            </li>
+            @endif
+
             <li class="sidebar-logout">
                 <form action="{{ route('logout') }}" method="POST" class="d-inline w-100">
                     @csrf

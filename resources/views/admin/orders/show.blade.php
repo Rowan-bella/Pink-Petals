@@ -281,7 +281,7 @@
         color: #fff;
     }
 
-    
+
     .profile-chip {
         display: flex;
         align-items: center;
@@ -317,7 +317,7 @@
         color: #be185d;
     }
 
-    
+
     .main-content {
         padding: 24px 4px;
         flex: 1;
@@ -412,7 +412,7 @@
         margin-left: 3px;
     }
 
-    
+
     @media (max-width: 991.98px) {
         :root {
             --sidebar-width: 220px;
@@ -622,8 +622,17 @@
                 </a>
             </li>
             @endif
+            @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li>
+                <a href="{{ route('admin.contacts.index') }}"
+                    class="{{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-envelope-open-text me-2"></i>
+                    {{ __('messages.contact_messages')}}
+                </a>
+            </li>
+            @endif
 
-            
+
             <li class="sidebar-logout">
                 <form action="{{ route('logout') }}" method="POST" class="d-inline w-100">
                     @csrf
@@ -654,7 +663,7 @@
 
             <div class="d-flex align-items-center gap-3">
 
-            
+
                 <div class="dropdown">
                     <button class="btn lang-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -684,7 +693,7 @@
                     </ul>
                 </div>
 
-                
+
                 @php
                 $currentUser = auth()->user();
                 $currentRole = strtolower($currentUser->role ?? 'user');
@@ -746,7 +755,7 @@
             </div>
         </header>
 
-    
+
         <div class="main-content">
 
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
@@ -844,7 +853,7 @@
 
                         @php
                         $itemsSubtotal = $order->items->sum(function($item) {
-                            return $item->price * $item->quantity;
+                        return $item->price * $item->quantity;
                         });
 
                         $calculatedDiscount = ($itemsSubtotal) - $order->total_price;
@@ -874,7 +883,7 @@
             </div>
         </div>
 
-        
+
         <footer class="admin-footer d-flex flex-wrap justify-content-between align-items-center gap-3">
 
             <span class="footer-brand">

@@ -638,8 +638,15 @@
                 </a>
             </li>
             @endif
-
-            <!-- LOGOUT -->
+            @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'manager'))
+            <li>
+                <a href="{{ route('admin.contacts.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-envelope-open-text me-2"></i>
+                    <span>{{ __('messages.contact_messages') }}</span>
+                </a>
+            </li>
+            @endif
             <li class="sidebar-logout">
                 <form action="{{ route('logout') }}" method="POST" class="d-inline w-100">
                     @csrf
@@ -885,9 +892,10 @@
         monthly: {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             data: Array.isArray(monthlySalesData) ?
-                monthlySalesData :
-                ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((_,
-                idx) => {
+                monthlySalesData : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov',
+                    'Dec'
+                ].map((_,
+                    idx) => {
                     const base = dailySalesData[idx % (dailySalesData.length || 1)] || 0;
                     return base * 4;
                 })
@@ -901,8 +909,7 @@
                 '{{ date("Y") }}'
             ],
             data: Array.isArray(yearlySalesData) ?
-                yearlySalesData :
-                [0, 1, 2, 3, 4].map((step) => {
+                yearlySalesData : [0, 1, 2, 3, 4].map((step) => {
                     const weekSum = dailySalesData.reduce((acc, val) => acc + Number(val || 0), 0);
                     return Math.round(weekSum * (0.6 + step * 0.25));
                 })

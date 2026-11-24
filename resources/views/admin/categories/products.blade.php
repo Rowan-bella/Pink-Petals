@@ -36,7 +36,7 @@
         flex-direction: column;
     }
 
-    
+
     .sidebar {
         width: var(--sidebar-width);
         position: fixed;
@@ -185,7 +185,7 @@
         min-height: calc(100vh - 28px);
     }
 
-    
+
     .top-navbar {
         background: rgba(255, 255, 255, .94);
         border: 1px solid rgba(255, 255, 255, .95);
@@ -317,7 +317,7 @@
         color: #be185d;
     }
 
-    
+
     .main-content {
         padding: 24px 4px;
         flex: 1;
@@ -450,6 +450,7 @@
         font-size: 1.1rem;
         margin-left: 3px;
     }
+
     @media (max-width: 991.98px) {
         :root {
             --sidebar-width: 220px;
@@ -659,8 +660,17 @@
                 </a>
             </li>
             @endif
+            @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li>
+                <a href="{{ route('admin.contacts.index') }}"
+                    class="{{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-envelope-open-text me-2"></i>
+                    {{ __('messages.contact_messages')}}
+                </a>
+            </li>
+            @endif
 
-            
+
             <li class="sidebar-logout">
                 <form action="{{ route('logout') }}" method="POST" class="d-inline w-100">
                     @csrf
@@ -674,7 +684,7 @@
         </ul>
     </div>
 
-    
+
     <div class="page-wrapper">
 
 
@@ -691,7 +701,7 @@
 
             <div class="d-flex align-items-center gap-3">
 
-            
+
                 <div class="dropdown">
                     <button class="btn lang-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -721,7 +731,7 @@
                     </ul>
                 </div>
 
-    
+
                 @php
                 $currentUser = auth()->user();
                 $currentRole = strtolower($currentUser->role ?? 'user');
@@ -845,8 +855,7 @@
                                 <i class="fa-solid fa-pen me-1"></i> {{ __('messages.edit') }}
                             </a>
 
-                            <form action="{{ route('products.destroy', $product->id) }}" method="POST"
-                                class="d-inline"
+                            <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline"
                                 onsubmit="return confirm('{{ __('messages.confirm_delete_product') }}');">
                                 @csrf
                                 @method('DELETE')

@@ -640,8 +640,16 @@
                 </a>
             </li>
             @endif
+            @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li>
+                <a href="{{ route('admin.contacts.index') }}"
+                    class="{{ request()->routeIs('admin.reports.activity') ? 'active' : '' }}">
+                    <i class="fa-solid fa-envelope-open-text me-2"></i>
+                    {{ __('messages.contact_messages')}}
+                </a>
+            </li>
+            @endif
 
-            <!-- LOGOUT -->
             <li class="sidebar-logout">
                 <form action="{{ route('logout') }}" method="POST" class="d-inline w-100">
                     @csrf
@@ -668,7 +676,7 @@
 
             <div class="d-flex align-items-center gap-3">
 
-                
+
                 <div class="dropdown">
                     <button class="btn lang-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -767,7 +775,8 @@
 
             <div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div>
-                    <h2 class="fw-bold mb-1" style="color: var(--pink-deep);">{{ __('messages.categories_management') }}</h2>
+                    <h2 class="fw-bold mb-1" style="color: var(--pink-deep);">{{ __('messages.categories_management') }}
+                    </h2>
                     <p class="text-muted mb-0">{{ __('messages.manage_categories_desc') }}</p>
                 </div>
                 <button type="button" class="btn btn-pink px-4 py-2" data-bs-toggle="modal"
@@ -790,11 +799,13 @@
                             @endif
                             <div>
                                 <h5 class="fw-bold mb-1" style="color: var(--text-main);">{{ $category->name }}</h5>
-                                <span class="text-muted small">{{ $category->products_count }} {{ __('messages.products_count_label') }}</span>
+                                <span class="text-muted small">{{ $category->products_count }}
+                                    {{ __('messages.products_count_label') }}</span>
                             </div>
                         </div>
 
-                        <p class="text-muted small mb-3">{{ $category->description ?? __('messages.no_description_dot') }}</p>
+                        <p class="text-muted small mb-3">
+                            {{ $category->description ?? __('messages.no_description_dot') }}</p>
                         <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                             <a href="{{ route('admin.category.products', $category->id) }}"
                                 class="btn btn-sm btn-outline-secondary rounded-3">
@@ -827,7 +838,8 @@
                             @method('PUT')
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title fw-bold" style="color: var(--pink-deep);">{{ __('messages.edit_category') }}</h5>
+                                    <h5 class="modal-title fw-bold" style="color: var(--pink-deep);">
+                                        {{ __('messages.edit_category') }}</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
@@ -857,7 +869,8 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <label class="form-label fw-semibold">{{ __('messages.category_image') }}</label>
+                                        <label
+                                            class="form-label fw-semibold">{{ __('messages.category_image') }}</label>
                                         <input type="file" name="image" accept="image/*"
                                             class="form-control @error('image') is-invalid @enderror">
                                         @error('image')
@@ -874,8 +887,10 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">{{ __('messages.cancel') }}</button>
-                                    <button type="submit" class="btn btn-pink px-4">{{ __('messages.update_changes') }}</button>
+                                    <button type="button" class="btn btn-outline-secondary rounded-3"
+                                        data-bs-dismiss="modal">{{ __('messages.cancel') }}</button>
+                                    <button type="submit"
+                                        class="btn btn-pink px-4">{{ __('messages.update_changes') }}</button>
                                 </div>
                             </div>
                         </form>
@@ -889,7 +904,7 @@
             </div>
         </div>
 
-        
+
         <footer class="admin-footer d-flex flex-wrap justify-content-between align-items-center gap-3">
 
             <span class="footer-brand">
@@ -924,7 +939,8 @@
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title fw-bold" style="color: var(--pink-deep);">{{ __('messages.add_new_category') }}</h5>
+                        <h5 class="modal-title fw-bold" style="color: var(--pink-deep);">
+                            {{ __('messages.add_new_category') }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -943,7 +959,8 @@
                         <div class="mb-3">
                             <label class="form-label fw-semibold">{{ __('messages.description') }}</label>
                             <textarea name="description" class="form-control @error('description') is-invalid @enderror"
-                                rows="3" placeholder="{{ __('messages.enter_description') }}">{{ old('description') }}</textarea>
+                                rows="3"
+                                placeholder="{{ __('messages.enter_description') }}">{{ old('description') }}</textarea>
                             @error('description')
                             <div class="invalid-feedback d-block text-danger small mt-1">
                                 {{ $message }}
@@ -963,7 +980,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">{{ __('messages.cancel') }}</button>
+                        <button type="button" class="btn btn-outline-secondary rounded-3"
+                            data-bs-dismiss="modal">{{ __('messages.cancel') }}</button>
                         <button type="submit" class="btn btn-pink px-4">{{ __('messages.save_category') }}</button>
                     </div>
                 </div>

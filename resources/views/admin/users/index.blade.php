@@ -36,7 +36,7 @@
         flex-direction: column;
     }
 
-    
+
     .sidebar {
         width: var(--sidebar-width);
         position: fixed;
@@ -176,7 +176,7 @@
         color: #e11d48;
     }
 
-    
+
     .page-wrapper {
         margin-left: calc(var(--sidebar-width) + 14px);
         margin-right: 14px;
@@ -186,7 +186,7 @@
         min-height: calc(100vh - 28px);
     }
 
-    
+
     .top-navbar {
         background: rgba(255, 255, 255, .94);
         border: 1px solid rgba(255, 255, 255, .95);
@@ -282,7 +282,7 @@
         color: #fff;
     }
 
-    
+
     .profile-chip {
         display: flex;
         align-items: center;
@@ -318,7 +318,7 @@
         color: #be185d;
     }
 
-    
+
     .main-content {
         padding: 24px 4px;
         flex: 1;
@@ -613,6 +613,15 @@
                 </a>
             </li>
             @endif
+            @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li>
+                <a href="{{ route('admin.contacts.index') }}"
+                    class="{{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-envelope-open-text me-2"></i>
+                    {{ __('messages.contact_messages')}}
+                </a>
+            </li>
+            @endif
 
             <li class="sidebar-logout">
                 <form action="{{ route('logout') }}" method="POST" class="d-inline w-100">
@@ -627,10 +636,10 @@
         </ul>
     </div>
 
-    
+
     <div class="page-wrapper">
 
-        
+
         <header class="top-navbar">
 
             <div class="top-title-wrap">
@@ -644,7 +653,7 @@
 
             <div class="d-flex align-items-center gap-3">
 
-            
+
                 <div class="dropdown">
                     <button class="btn lang-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -674,7 +683,7 @@
                     </ul>
                 </div>
 
-                
+
                 @php
                 $currentUser = auth()->user();
                 $currentRole = strtolower($currentUser->role ?? 'user');
@@ -736,7 +745,7 @@
             </div>
         </header>
 
-        
+
         <div class="main-content">
             @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show rounded-4" role="alert">
@@ -809,7 +818,8 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-5">{{ __('messages.no_users_found') }}</td>
+                                <td colspan="6" class="text-center text-muted py-5">{{ __('messages.no_users_found') }}
+                                </td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -818,7 +828,7 @@
             </div>
         </div>
 
-        
+
         <footer class="admin-footer d-flex flex-wrap justify-content-between align-items-center gap-3">
 
             <span class="footer-brand">

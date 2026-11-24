@@ -612,8 +612,17 @@
                 </a>
             </li>
             @endif
+            @if(strtolower(auth()->user()->role) === 'admin' || strtolower(auth()->user()->role) === 'manager')
+            <li>
+                <a href="{{ route('admin.contacts.index') }}"
+                    class="{{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-envelope-open-text me-2"></i>
+                    {{ __('messages.contact_messages')}}
+                </a>
+            </li>
+            @endif
 
-        
+
             <li class="sidebar-logout">
                 <form action="{{ route('logout') }}" method="POST" class="d-inline w-100">
                     @csrf
@@ -627,10 +636,10 @@
         </ul>
     </div>
 
-    
+
     <div class="page-wrapper">
 
-    
+
         <header class="top-navbar">
 
             <div class="top-title-wrap">
@@ -644,7 +653,7 @@
 
             <div class="d-flex align-items-center gap-3">
 
-                
+
                 <div class="dropdown">
                     <button class="btn lang-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -674,7 +683,7 @@
                     </ul>
                 </div>
 
-            
+
                 @php
                 $currentUser = auth()->user();
                 $currentRole = strtolower($currentUser->role ?? 'user');
@@ -738,7 +747,8 @@
 
         <div class="main-content">
             <div class="form-card">
-                <h2 class="mb-2 fw-bold" style="color: var(--pink-deep);">{{ __('messages.create_new_staff_user') }}</h2>
+                <h2 class="mb-2 fw-bold" style="color: var(--pink-deep);">{{ __('messages.create_new_staff_user') }}
+                </h2>
                 <p class="text-secondary mb-4">{{ __('messages.add_user_assign_role_desc') }}</p>
 
                 @if($errors->any())
@@ -771,10 +781,14 @@
                     <div class="mb-4">
                         <label class="form-label fw-semibold">{{ __('messages.role') }} *</label>
                         <select name="role" class="form-select" required>
-                            <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>{{ __('messages.role_user') }}</option>
-                            <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>{{ __('messages.role_manager') }}</option>
-                            <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>{{ __('messages.role_admin') }}</option>
-                            <option value="staff" {{ old('role') == 'staff' ? 'selected' : '' }}>{{ __('messages.role_staff') }}</option>
+                            <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>
+                                {{ __('messages.role_user') }}</option>
+                            <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>
+                                {{ __('messages.role_manager') }}</option>
+                            <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>
+                                {{ __('messages.role_admin') }}</option>
+                            <option value="staff" {{ old('role') == 'staff' ? 'selected' : '' }}>
+                                {{ __('messages.role_staff') }}</option>
                         </select>
                     </div>
 
